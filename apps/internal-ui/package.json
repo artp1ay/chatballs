@@ -11,9 +11,12 @@
   },
   "dependencies": {
     "@ant-design/icons": "^6.0.0",
+    "@bem-react/classname": "^1.8.0",
     "@chatballs/contracts": "0.1.0",
     "@chatballs/shared": "0.1.0",
     "@chatballs/ui": "0.1.0",
+    "@consta/icons": "^1.7.1",
+    "@consta/uikit": "^5.33.3",
     "antd": "^5.26.0",
     "js-yaml": "^5.2.1",
     "lucide": "^1.41.0",
