@@ -109,6 +109,7 @@ class TicketEvent(TenantRelationModel):
     old_values = models.JSONField(default=dict, blank=True)
     new_values = models.JSONField(default=dict, blank=True)
     notify_customer = models.BooleanField(default=False)
+    suppression_reason = models.TextField(blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
 
     def __str__(self) -> str:

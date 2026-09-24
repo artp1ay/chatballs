@@ -10,6 +10,7 @@ from rest_framework.views import APIView
 from chatballs.api.permissions import HasCapability
 from chatballs.i18n import t
 from chatballs.tickets.authorization import TICKETS_MANAGE, TICKETS_VIEW
+from chatballs.tickets.models.delivery import CustomerNoticePolicy
 from chatballs.tickets.models.ticket import Ticket
 from chatballs.tickets.payloads import (
     ticket_comment_payload,
@@ -116,11 +117,38 @@ class TicketCommentView(APIView):
             )
 
         is_public = bool(data.get("is_public", True))
+
+        customer_notice = (
+            data.get("customer_notice")
+            or data.get("customerNotice")
+            or CustomerNoticePolicy.SEND
+        )
+        if customer_notice not in CustomerNoticePolicy.values:
+            return Response(
+                {"error": "bad_request", "detail": t("tickets.customer_notice_invalid")},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        suppression_reason = str(
+            data.get("suppression_reason") or data.get("suppressionReason") or ""
+        ).strip()
+
+        if is_public and customer_notice == CustomerNoticePolicy.SUPPRESS and not suppression_reason:
+            return Response(
+                {
+                    "error": "bad_request",
+                    "detail": t("tickets.suppression_reason_required"),
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         comment = add_ticket_comment(
             ticket,
             text=text,
             author_membership=request.tenant_context.membership,
             is_public=is_public,
+            customer_notice=customer_notice,
+            suppression_reason=suppression_reason,
         )
         return Response(ticket_comment_payload(comment), status=status.HTTP_201_CREATED)
 

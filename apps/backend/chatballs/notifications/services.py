@@ -51,6 +51,26 @@ TYPE_META: dict[str, dict] = {
         "route": "agents",
         "label": "notifications.type_ai_stopped",
     },
+    NotificationType.TICKET_NEW: {
+        "level": NotificationLevel.INFO,
+        "route": "tickets",
+        "label": "notifications.type_ticket_new",
+    },
+    NotificationType.TICKET_ASSIGNED: {
+        "level": NotificationLevel.INFO,
+        "route": "tickets",
+        "label": "notifications.type_ticket_assigned",
+    },
+    NotificationType.TICKET_STATUS_CHANGED: {
+        "level": NotificationLevel.INFO,
+        "route": "tickets",
+        "label": "notifications.type_ticket_status_changed",
+    },
+    NotificationType.TICKET_CUSTOMER_REPLIED: {
+        "level": NotificationLevel.INFO,
+        "route": "tickets",
+        "label": "notifications.type_ticket_customer_replied",
+    },
 }
 
 

@@ -11,6 +11,7 @@ from chatballs.tickets.models.activities import (
     TicketEvent,
     TicketEventType,
 )
+from chatballs.tickets.models.delivery import CustomerNoticePolicy
 from chatballs.tickets.models.ticket import Ticket, TicketStatus
 
 TRANSITIONS: dict[str, set[str]] = {
@@ -92,6 +93,8 @@ def execute_transition(
     reason: str | None = None,
     comment: str | None = None,
     expected_version: int | None = None,
+    customer_notice: str = CustomerNoticePolicy.SEND,
+    suppression_reason: str = "",
 ) -> Ticket:
     """Атомарный переход статуса заявки с фиксацией версий и созданием событий."""
     with transaction.atomic():
@@ -128,7 +131,7 @@ def execute_transition(
 
         locked_ticket.save()
 
-        TicketEvent.objects.create(
+        event = TicketEvent.objects.create(
             organization=locked_ticket.organization,
             ticket=locked_ticket,
             event_type=TicketEventType.STATUS_CHANGED,
@@ -139,6 +142,8 @@ def execute_transition(
                 "reason": (reason or "").strip(),
                 "version": locked_ticket.version,
             },
+            notify_customer=(customer_notice == CustomerNoticePolicy.SEND),
+            suppression_reason=(suppression_reason or "").strip(),
         )
 
         if comment and comment.strip():
@@ -149,5 +154,16 @@ def execute_transition(
                 text=comment.strip(),
                 is_public=True,
             )
+
+        from chatballs.tickets.services.delivery_dispatch import (
+            dispatch_ticket_event,
+        )
+
+        dispatch_ticket_event(
+            locked_ticket,
+            event,
+            customer_notice=customer_notice,
+            suppression_reason=(suppression_reason or "").strip(),
+        )
 
         return locked_ticket

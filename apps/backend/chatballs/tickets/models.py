@@ -7,6 +7,13 @@ from chatballs.tickets.models.activities import (
     TicketEventType,
     TicketNote,
 )
+from chatballs.tickets.models.delivery import (
+    CustomerNoticePolicy,
+    TicketDelivery,
+    TicketDeliveryChannel,
+    TicketDeliveryStatus,
+    compute_destination_hash,
+)
 from chatballs.tickets.models.links import TicketContactLink, TicketConversationLink
 from chatballs.tickets.models.settings import HeldeskSettings, TicketNumberCounter
 from chatballs.tickets.models.ticket import Ticket, TicketPriority, TicketStatus
@@ -24,4 +31,9 @@ __all__ = [
     "TicketComment",
     "TicketEvent",
     "TicketPublicAccess",
+    "TicketDelivery",
+    "TicketDeliveryStatus",
+    "TicketDeliveryChannel",
+    "CustomerNoticePolicy",
+    "compute_destination_hash",
 ]

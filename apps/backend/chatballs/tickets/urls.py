@@ -18,6 +18,7 @@ urlpatterns = [
     path("", TicketListCreateView.as_view(), name="ticket-list"),
     path("<int:ticket_id>/", TicketDetailView.as_view(), name="ticket-detail"),
     path("<int:ticket_id>/transitions/", TicketTransitionView.as_view(), name="ticket-transitions"),
+    path("<int:ticket_id>/transition/", TicketTransitionView.as_view(), name="ticket-transition"),
     path("<int:ticket_id>/notes/", TicketNoteView.as_view(), name="ticket-notes"),
     path("<int:ticket_id>/comments/", TicketCommentView.as_view(), name="ticket-comments"),
     path("<int:ticket_id>/events/", TicketEventView.as_view(), name="ticket-events"),

@@ -26,6 +26,10 @@ class NotificationType(models.TextChoices):
     DIALOG_ASSIGNED = "DIALOG_ASSIGNED", "Диалог назначили на меня"
     DIALOG_WAITING_LONG = "DIALOG_WAITING_LONG", "Диалог долго ждёт человека"
     AI_STOPPED = "AI_STOPPED", "AI остановлен ошибкой или лимитом"
+    TICKET_NEW = "TICKET_NEW", "Новая заявка"
+    TICKET_ASSIGNED = "TICKET_ASSIGNED", "Заявка назначена на меня"
+    TICKET_STATUS_CHANGED = "TICKET_STATUS_CHANGED", "Изменился статус заявки"
+    TICKET_CUSTOMER_REPLIED = "TICKET_CUSTOMER_REPLIED", "Клиент ответил по заявке"
 
 
 class NotificationLevel(models.TextChoices):

@@ -11,6 +11,7 @@ from chatballs.tickets.models.activities import (
     TicketEvent,
     TicketEventType,
 )
+from chatballs.tickets.models.delivery import CustomerNoticePolicy
 from chatballs.tickets.models.links import (
     TicketContactLink,
     TicketConversationLink,
@@ -46,6 +47,8 @@ def create_ticket(
     group: EmployeeGroup | None = None,
     origin_conversation: Conversation | None = None,
     actor_membership: OrganizationMembership | None = None,
+    customer_notice: str = CustomerNoticePolicy.SEND,
+    suppression_reason: str = "",
 ) -> Ticket:
     """Создание агрегата заявки с первичными связями и событием аудита."""
     if not category:
@@ -92,7 +95,7 @@ def create_ticket(
         else:
             event_type = TicketEventType.CREATED
 
-        TicketEvent.objects.create(
+        event = TicketEvent.objects.create(
             organization=organization,
             ticket=ticket,
             event_type=event_type,
@@ -104,6 +107,19 @@ def create_ticket(
                 "category": ticket.category,
                 "status": ticket.status,
             },
+            notify_customer=(customer_notice == CustomerNoticePolicy.SEND),
+            suppression_reason=(suppression_reason or "").strip(),
+        )
+
+        from chatballs.tickets.services.delivery_dispatch import (
+            dispatch_ticket_event,
+        )
+
+        dispatch_ticket_event(
+            ticket,
+            event,
+            customer_notice=customer_notice,
+            suppression_reason=(suppression_reason or "").strip(),
         )
 
         return ticket
@@ -119,6 +135,8 @@ def create_ticket_from_conversation(
     assignee_membership: OrganizationMembership | None = None,
     group: EmployeeGroup | None = None,
     actor_membership: OrganizationMembership | None = None,
+    customer_notice: str = CustomerNoticePolicy.SEND,
+    suppression_reason: str = "",
 ) -> Ticket:
     """Создание заявки напрямую из диалога оперативного чата."""
     return create_ticket(
@@ -132,4 +150,6 @@ def create_ticket_from_conversation(
         group=group,
         origin_conversation=conversation,
         actor_membership=actor_membership,
+        customer_notice=customer_notice,
+        suppression_reason=suppression_reason,
     )

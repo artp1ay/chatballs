@@ -117,6 +117,7 @@ def ticket_event_payload(event: TicketEvent) -> dict[str, Any]:
         "old_values": event.old_values,
         "new_values": event.new_values,
         "notify_customer": event.notify_customer,
+        "suppression_reason": event.suppression_reason,
         "created_at": event.created_at.isoformat(),
     }
 

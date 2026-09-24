@@ -14,7 +14,13 @@ from chatballs.tickets.models.activities import (
     TicketEventType,
     TicketNote,
 )
+from chatballs.tickets.models.delivery import CustomerNoticePolicy
 from chatballs.tickets.models.ticket import Ticket
+from chatballs.tickets.realtime import notify_tickets_inbox_changed
+from chatballs.tickets.services.delivery_dispatch import dispatch_ticket_event
+from chatballs.tickets.services.staff_notifications import (
+    enqueue_staff_notification,
+)
 from chatballs.tickets.state_machine import VersionConflictError
 
 
@@ -66,8 +72,9 @@ def update_ticket(
         locked.save()
 
         # Запись специализированных и общих событий
+        events_to_dispatch = []
         if "assignee_membership" in new_values:
-            TicketEvent.objects.create(
+            ev = TicketEvent.objects.create(
                 organization=locked.organization,
                 ticket=locked,
                 event_type=TicketEventType.ASSIGNEE_CHANGED,
@@ -75,9 +82,10 @@ def update_ticket(
                 old_values={"assignee_id": old_values.get("assignee_membership")},
                 new_values={"assignee_id": new_values.get("assignee_membership")},
             )
+            events_to_dispatch.append(ev)
 
         if "priority" in new_values:
-            TicketEvent.objects.create(
+            ev = TicketEvent.objects.create(
                 organization=locked.organization,
                 ticket=locked,
                 event_type=TicketEventType.PRIORITY_CHANGED,
@@ -85,8 +93,9 @@ def update_ticket(
                 old_values={"priority": old_values.get("priority")},
                 new_values={"priority": new_values.get("priority")},
             )
+            events_to_dispatch.append(ev)
 
-        TicketEvent.objects.create(
+        main_event = TicketEvent.objects.create(
             organization=locked.organization,
             ticket=locked,
             event_type=TicketEventType.UPDATED,
@@ -94,6 +103,11 @@ def update_ticket(
             old_values=old_values,
             new_values=new_values,
         )
+        events_to_dispatch.append(main_event)
+
+        notify_tickets_inbox_changed(locked.organization_id)
+        for ev in events_to_dispatch:
+            enqueue_staff_notification(locked, ev)
 
         return locked
 
@@ -115,13 +129,15 @@ def add_ticket_note(
         note.full_clean()
         note.save()
 
-        TicketEvent.objects.create(
+        event = TicketEvent.objects.create(
             organization=ticket.organization,
             ticket=ticket,
             event_type=TicketEventType.NOTE_ADDED,
             actor_membership=author_membership,
             new_values={"note_id": note.id},
         )
+        notify_tickets_inbox_changed(ticket.organization_id)
+        enqueue_staff_notification(ticket, event)
         return note
 
 
@@ -132,6 +148,8 @@ def add_ticket_comment(
     author_membership: OrganizationMembership | None = None,
     author_contact: Contact | None = None,
     is_public: bool = True,
+    customer_notice: str = CustomerNoticePolicy.SEND,
+    suppression_reason: str = "",
 ) -> TicketComment:
     """Добавление комментария / сообщения в переписку по заявке."""
     with transaction.atomic():
@@ -146,7 +164,8 @@ def add_ticket_comment(
         comment.full_clean()
         comment.save()
 
-        TicketEvent.objects.create(
+        notify_customer = is_public and (customer_notice == CustomerNoticePolicy.SEND)
+        event = TicketEvent.objects.create(
             organization=ticket.organization,
             ticket=ticket,
             event_type=TicketEventType.COMMENT_ADDED,
@@ -156,5 +175,14 @@ def add_ticket_comment(
                 "comment_id": comment.id,
                 "is_public": is_public,
             },
+            notify_customer=notify_customer,
+            suppression_reason=(suppression_reason or "").strip(),
+        )
+
+        dispatch_ticket_event(
+            ticket,
+            event,
+            customer_notice=customer_notice if is_public else CustomerNoticePolicy.NOT_REQUIRED,
+            suppression_reason=(suppression_reason or "").strip(),
         )
         return comment
