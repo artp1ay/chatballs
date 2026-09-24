@@ -26,11 +26,11 @@ def route_inbound_conversation(
 ) -> RouteDecision | None:
     """Вычисляет и применяет маршрут в уже сохранённом диалоге."""
 
+    if conversation.control_mode == ControlMode.HUMAN:
+        return None
     if has_active_ai_agent is None:
         agent = getattr(channel, "ai_agent", None)
         has_active_ai_agent = bool(agent and agent.is_active)
-    if conversation.control_mode == ControlMode.HUMAN:
-        return None
     # Правила вычисляются только для автоматических диалогов.
     context = RoutingContext(
         channel=channel,

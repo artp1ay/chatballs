@@ -165,6 +165,12 @@ def ingest_inbound(integration, inbound: InboundMessage) -> None:
         elif inbound.chat_id and not conversation.external_chat_id:
             conversation.external_chat_id = inbound.chat_id
 
+        is_first_message = not Message.objects.filter(
+            conversation__contact=contact,
+            author_type=MessageAuthor.CONTACT,
+        ).exists()
+        # Для обычного сообщения этот флаг вычисляется до create(), поэтому
+        # текущая реплика не превращает первый контакт в последующий.
         if not files_only:
             message = Message.objects.create(
                 conversation=conversation,
@@ -190,10 +196,6 @@ def ingest_inbound(integration, inbound: InboundMessage) -> None:
                 external_id=f"{inbound.external_id}:file:{index}" if not files_only or index else inbound.external_id,
             )
             store_attachment(integration, inbound_file, file_message)
-        is_first_message = not Message.objects.filter(
-            conversation__contact=contact,
-            author_type=MessageAuthor.CONTACT,
-        ).exclude(pk=message.pk if not files_only else -1).exists()
         has_verified_phone = identity.phone_verified_at is not None or (
             ConnectionIdentity.objects.filter(
                 contact=contact,

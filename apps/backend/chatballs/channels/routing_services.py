@@ -70,7 +70,7 @@ def save_business_hours(
         weekly_schedule=weekly_schedule,
         holidays=holidays,
     )
-    hours, _created, = ChannelBusinessHours.objects.update_or_create(
+    hours, _created = ChannelBusinessHours.objects.update_or_create(
         channel=channel,
         defaults={
             "organization": channel.organization,
