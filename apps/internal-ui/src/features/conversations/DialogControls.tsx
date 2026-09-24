@@ -1,4 +1,4 @@
-import { Dropdown } from "antd";
+import { ConstaMenu } from "../../shared/ConstaMenu";
 import { useEffect, useState } from "react";
 
 import { Icon } from "../../shared/icons";
@@ -95,7 +95,7 @@ export function DialogControls({
             <WaitingBlock detail={detail} timeoutMinutes={assignmentTimeoutMinutes} />
 
             <label className="ctx-label">{t("common.assignee")}</label>
-            <Dropdown
+            <ConstaMenu
               disabled={busy || (directory.employees.length === 0 && !directory.query)}
               trigger={["click"]}
               overlayClassName="app-dropdown ctx-menu"
@@ -113,10 +113,10 @@ export function DialogControls({
                 <span>{assigneeLabel}</span>
                 {canEdit && <Icon name="chevron" size={14} />}
               </button>
-            </Dropdown>
+            </ConstaMenu>
 
             <label className="ctx-label">{t("common.group")}</label>
-            <Dropdown
+            <ConstaMenu
               disabled={busy || groups.length === 0}
               trigger={["click"]}
               overlayClassName="app-dropdown ctx-menu"
@@ -138,10 +138,10 @@ export function DialogControls({
                 <span>{detail.group?.name ?? t("common.no_group")}</span>
                 {canEdit && <Icon name="chevron" size={14} />}
               </button>
-            </Dropdown>
+            </ConstaMenu>
 
             <label className="ctx-label">{t("conversations.priority")}</label>
-            <Dropdown
+            <ConstaMenu
               disabled={busy}
               trigger={["click"]}
               overlayClassName="app-dropdown ctx-menu"
@@ -157,7 +157,7 @@ export function DialogControls({
                 <span style={{ color: PRIORITY_TEXT[detail.priority], fontWeight: detail.priority === "NONE" ? 500 : 600 }}>{priorityLabel}</span>
                 <Icon name="chevron" size={14} />
               </button>
-            </Dropdown>
+            </ConstaMenu>
 
             <div className="ctx-grid">
               <div>

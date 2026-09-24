@@ -1,4 +1,4 @@
-import { Dropdown } from "antd";
+import { ConstaMenu } from "../../shared/ConstaMenu";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { hasCapability } from "../../auth/access";
@@ -253,9 +253,9 @@ export function SupportPortalsPage({
                   <td className="portals-content-cell">{contentSummary(portal)}</td>
                   <td className="portals-updated-cell">{updatedAt(portal.updatedAt)}</td>
                   <td className="row-actions" onClick={(event) => event.stopPropagation()}>
-                    <Dropdown menu={{ items: menuItems }} overlayClassName="app-dropdown is-portal-menu" placement="bottomRight" trigger={["click"]}>
+                    <ConstaMenu menu={{ items: menuItems }} overlayClassName="app-dropdown is-portal-menu" placement="bottomRight" trigger={["click"]}>
                       <button aria-label={t("common.actions_for", { name: portal.name })} className="row-menu-button" type="button"><Icon name="more" size={16} strokeWidth={2} /></button>
-                    </Dropdown>
+                    </ConstaMenu>
                   </td>
                 </tr>
               );

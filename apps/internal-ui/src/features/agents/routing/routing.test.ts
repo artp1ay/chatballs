@@ -12,6 +12,12 @@ import {
   triggerEventTitle,
 } from "./model";
 import type { ChannelBusinessHours, ChannelRoutingRule } from "./types";
+import {
+  addDayInterval,
+  hasOverlappingIntervals,
+  isRoundTheClockSchedule,
+  validateWeeklySchedule,
+} from "./businessHoursModel";
 
 describe("Routing model and formatting", () => {
   beforeAll(() => {
@@ -42,11 +48,14 @@ describe("Routing model and formatting", () => {
     expect(conditionFieldTitle("schedule.is_working_hours")).toBe("Рабочее время по графику");
     expect(conditionFieldTitle("contact.labels")).toBe("Метка клиента");
     expect(conditionFieldTitle("message.text_contains")).toBe("Текст содержит слова");
+    expect(conditionFieldTitle("channel.routing_mode")).toBe("Режим маршрутизации канала");
 
     expect(conditionOperatorTitle("eq")).toBe("равно");
     expect(conditionOperatorTitle("neq")).toBe("не равно");
     expect(conditionOperatorTitle("contains")).toBe("содержит");
+    expect(conditionOperatorTitle("not_contains")).toBe("не содержит");
     expect(conditionOperatorTitle("contains_any")).toBe("содержит любое из");
+    expect(conditionOperatorTitle("contains_all")).toBe("содержит все");
   });
 
   it("formats individual conditions correctly", () => {
@@ -99,6 +108,26 @@ describe("Routing model and formatting", () => {
     );
   });
 
+  it("formats a root leaf and a nested not block safely", () => {
+    expect(
+      formatConditionsSummary({
+        field: "channel.routing_mode",
+        op: "eq",
+        value: "HUMAN_ONLY",
+      }),
+    ).toBe("Режим маршрутизации канала равно «Только операторы»");
+
+    expect(
+      formatConditionsSummary({
+        not: {
+          field: "contact.labels",
+          op: "not_contains",
+          value: ["VIP"],
+        },
+      }),
+    ).toBe("НЕ (Метка клиента не содержит «VIP»)");
+  });
+
   it("handles empty conditions gracefully", () => {
     expect(formatConditionsSummary({})).toBe(
       "Всегда срабатывает (без дополнительных условий)",
@@ -114,6 +143,7 @@ describe("Routing model and formatting", () => {
       holidays: [],
     };
     expect(formatScheduleOverview(roundTheClock)).toBe("Круглосуточно");
+    expect(formatScheduleOverview({ timezone: "UTC", weekly_schedule: { mon: [] }, holidays: [] })).toBe("График не настроен");
 
     const customSchedule: ChannelBusinessHours = {
       timezone: "Europe/Moscow",
@@ -129,5 +159,30 @@ describe("Routing model and formatting", () => {
       holidays: ["2026-01-01"],
     };
     expect(formatScheduleOverview(customSchedule)).toBe("5 / 7 дней (Europe/Moscow)");
+  });
+
+  it("различает пустой круглосуточный словарь и отсутствие записи", () => {
+    expect(isRoundTheClockSchedule({})).toBe(true);
+    expect(isRoundTheClockSchedule({ mon: [] })).toBe(false);
+    expect(formatScheduleOverview(null)).toBe("График не настроен");
+  });
+
+  it("добавляет и проверяет интервалы дня без пересечений", () => {
+    const first = addDayInterval({}, "mon");
+    expect(first.error).toBeNull();
+    expect(first.schedule.mon).toHaveLength(1);
+
+    const second = addDayInterval(first.schedule, "mon");
+    expect(second.error).toBeNull();
+    expect(second.schedule.mon).toHaveLength(2);
+    expect(validateWeeklySchedule(second.schedule)).toBeNull();
+    expect(hasOverlappingIntervals([
+      { start: "09:00", end: "13:00" },
+      { start: "12:00", end: "18:00" },
+    ])).toBe(true);
+    expect(hasOverlappingIntervals([
+      { start: "09:00", end: "13:00" },
+      { start: "13:00", end: "18:00" },
+    ])).toBe(false);
   });
 });

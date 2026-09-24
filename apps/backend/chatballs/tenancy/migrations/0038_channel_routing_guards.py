@@ -48,7 +48,28 @@ TRIGGERS = (
 )
 
 
+def _preflight_cross_tenant_rows(schema_editor) -> None:
+    for name, child, parent, column in TRIGGERS:
+        schema_editor.execute(
+            f"""
+            DO $$
+            BEGIN
+                IF EXISTS (
+                    SELECT 1
+                    FROM {child} AS child
+                    JOIN {parent} AS parent ON parent.id = child.{column}
+                    WHERE child.{column} IS NOT NULL
+                      AND child.organization_id IS DISTINCT FROM parent.organization_id
+                ) THEN
+                    RAISE EXCEPTION 'cross-tenant rows in %.% (%)', '{child}', '{column}', '{name}';
+                END IF;
+            END $$;
+            """
+        )
+
+
 def apply_guards(apps, schema_editor):
+    _preflight_cross_tenant_rows(schema_editor)
     for table in TABLES:
         schema_editor.execute(FORWARD_RLS.format(table=table))
     for name, child, parent, column in TRIGGERS:
@@ -70,6 +91,10 @@ def remove_guards(apps, schema_editor):
         schema_editor.execute(f"DROP POLICY IF EXISTS chatballs_schema_access ON {table}")
         schema_editor.execute(f"ALTER TABLE {table} NO FORCE ROW LEVEL SECURITY")
         schema_editor.execute(f"ALTER TABLE {table} DISABLE ROW LEVEL SECURITY")
+        schema_editor.execute(f"REVOKE ALL ON {table} FROM chatballs_runtime_app")
+        schema_editor.execute(
+            f"REVOKE USAGE, SELECT ON SEQUENCE {table}_id_seq FROM chatballs_runtime_app"
+        )
 
 
 class Migration(migrations.Migration):

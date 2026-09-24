@@ -1,4 +1,4 @@
-import { Modal } from "antd";
+import { ConstaModal } from "../../shared/ConstaModal";
 import { useRef, useState } from "react";
 
 import { FormField, TextAreaField } from "../../shared/form-controls";
@@ -50,7 +50,7 @@ export function ReplyTemplateForm({ initial, onClose, onSaved }: {
   }
 
   return (
-    <Modal open title={initial ? t("settings.edit_template") : t("settings.new_template")} onCancel={onClose} footer={null} destroyOnClose>
+    <ConstaModal open title={initial ? t("settings.edit_template") : t("settings.new_template")} onCancel={onClose} footer={null} destroyOnClose>
       <div className="integration-form">
         <FormField label={t("common.title")} value={title} onChange={setTitle} />
         <TextAreaField label={t("settings.template_text")} value={text} onChange={setText} inputRef={textRef} />
@@ -61,6 +61,6 @@ export function ReplyTemplateForm({ initial, onClose, onSaved }: {
           <Button variant="primary" disabled={saving || !title.trim() || !text.trim()} onClick={() => void save()}>{t("common.save")}</Button>
         </div>
       </div>
-    </Modal>
+    </ConstaModal>
   );
 }

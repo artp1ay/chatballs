@@ -299,10 +299,17 @@
   color: var(--n-1);
 }
 
-.business-hours-times {
+.business-hours-intervals {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.business-hours-interval-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .business-hours-time-input,
@@ -316,6 +323,19 @@
 }
 
 .business-hours-time-separator {
+  color: var(--n-4);
+}
+
+.business-hours-round-clock {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  color: var(--n-2);
+  font-size: 12px;
+}
+
+.business-hours-round-clock small {
   color: var(--n-4);
 }
 
@@ -443,6 +463,48 @@
   flex-direction: column;
   gap: 8px;
   margin-bottom: 12px;
+}
+
+.routing-condition-node {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid var(--n-8);
+  border-radius: var(--radius-md);
+  background: var(--surface-card);
+}
+
+.routing-condition-node[data-depth="1"],
+.routing-condition-node[data-depth="2"],
+.routing-condition-node[data-depth="3"] {
+  margin-left: 12px;
+}
+
+.routing-condition-node-head,
+.routing-condition-add-row,
+.routing-condition-empty {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.routing-condition-node-head {
+  justify-content: space-between;
+}
+
+.routing-condition-add-row {
+  flex-wrap: wrap;
+}
+
+.routing-condition-empty {
+  color: var(--n-4);
+  font-size: 12px;
+}
+
+.routing-condition-not-child {
+  padding-left: 8px;
+  border-left: 2px solid var(--n-8);
 }
 
 .routing-condition-row {

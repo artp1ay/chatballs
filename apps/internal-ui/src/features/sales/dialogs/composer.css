@@ -393,11 +393,11 @@
 
 /* Просмотр фото: снимок по центру на затемнённом фоне, без карточки и полей;
    над ним строка с именем, размером и действиями. Ширина модалки = ширине фото. */
-.image-lightbox-root .ant-modal-mask {
+.image-lightbox-root .Modal-Overlay {
   background: rgba(0, 0, 0, 0.8);
 }
 
-.image-lightbox .ant-modal-content {
+.image-lightbox .app-modal-card {
   padding: 0;
   background: transparent;
   box-shadow: none;

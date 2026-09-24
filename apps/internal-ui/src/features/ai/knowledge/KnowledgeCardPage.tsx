@@ -1,4 +1,4 @@
-import { Dropdown } from "antd";
+import { ConstaMenu } from "../../../shared/ConstaMenu";
 import { useCallback, useEffect, useState } from "react";
 
 import { DecisionDialog } from "../../../shared/DecisionDialog";
@@ -146,11 +146,11 @@ export function KnowledgeCardPage({
               <Button variant="primary" className="knowledge-primary-action" icon="edit" onClick={() => openKnowledgeEditor(item.id)}>{t("common.edit_item")}</Button>
             )}
             {canManage && (
-              <Dropdown menu={{ items: menuItems }} overlayClassName="app-dropdown is-knowledge-menu" placement="bottomRight" trigger={["click"]}>
+              <ConstaMenu menu={{ items: menuItems }} overlayClassName="app-dropdown is-knowledge-menu" placement="bottomRight" trigger={["click"]}>
                 <button aria-label={t("common.more")} className="knowledge-more-button" title={t("common.more")} type="button">
                   <Icon name="more" size={16} strokeWidth={2} />
                 </button>
-              </Dropdown>
+              </ConstaMenu>
             )}
           </div>
         </div>

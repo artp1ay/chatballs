@@ -39,7 +39,11 @@ def require_organization_manage(context: TenantContext, *, operation: str) -> No
         raise PermissionDenied(t("channels.operation_needs_manage", operation=t(operation)))
 
 
-def require_channel_manage(context: TenantContext) -> None:
+def require_channel_manage(
+    context: TenantContext, *, channel: object | None = None
+) -> None:
+    if channel is not None and getattr(channel, "organization_id", None) != context.organization_id:
+        raise PermissionDenied(t("channels.no_rights_to_change"))
     if not has_organization_capability(context, CHANNELS_MANAGE):
         raise PermissionDenied(t("channels.no_rights_to_change"))
 

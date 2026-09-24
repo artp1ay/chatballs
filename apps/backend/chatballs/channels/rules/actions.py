@@ -48,7 +48,9 @@ def apply_routing_decision(
             if target == RuleActionTarget.ASSIGN_GROUP
             else channel.group_id
         )
-        return (*QUEUE_FIELDS, "group")
+        conversation.assigned_operator = None
+        conversation.assigned_at = None
+        return (*QUEUE_FIELDS, "group", "assigned_operator", "assigned_at")
 
     if target == RuleActionTarget.ROUTE_TO_AI:
         leave_queue(conversation)

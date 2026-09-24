@@ -114,7 +114,7 @@ export function SearchInput({ className = "", placeholder, value, onChange, inpu
       if (event.key !== hotkey || event.metaKey || event.ctrlKey || event.altKey) return;
       const target = event.target;
       // Не перехватываем клавишу, когда человек пишет в другом поле или открыл меню.
-      if (target instanceof Element && target.closest("input, textarea, [contenteditable], .ant-dropdown, .app-dropdown")) return;
+      if (target instanceof Element && target.closest("input, textarea, [contenteditable], .app-dropdown, .ContextMenu, .Popover")) return;
       event.preventDefault();
       field.current?.focus();
     }

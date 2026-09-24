@@ -1,4 +1,4 @@
-import { Modal } from "antd";
+import { ConstaModal } from "../../shared/ConstaModal";
 import { useEffect, useState } from "react";
 
 import { api } from "../../api/client";
@@ -110,7 +110,7 @@ export function GroupsSettingsCard({ groups, reload }: { groups: EmployeeGroup[]
       {errorText && <div className="settings-section-error">{errorText}</div>}
       <p className="settings-section-note">{t("settings.group_membership_edited_operator_card")}</p>
       {renaming && (
-        <Modal open title={t("common.group")} onCancel={() => setRenaming(null)} footer={null} destroyOnClose>
+        <ConstaModal open title={t("common.group")} onCancel={() => setRenaming(null)} footer={null} destroyOnClose>
           <div className="integration-form">
             <input className="settings-modal-input" value={renameValue} onChange={(event) => setRenameValue(event.target.value)} />
             {/* Цвет точки группы в чате (дизайн-базлайн v2) — тот же стандарт свотчей, что у акцента. */}
@@ -125,10 +125,10 @@ export function GroupsSettingsCard({ groups, reload }: { groups: EmployeeGroup[]
               <Button variant="primary" disabled={!renameValue.trim()} onClick={() => void rename()}>{t("common.save")}</Button>
             </div>
           </div>
-        </Modal>
+        </ConstaModal>
       )}
       {deleting && (
-        <Modal open title={t("settings.delete_group")} onCancel={() => setDeleting(null)} footer={null} destroyOnClose>
+        <ConstaModal open title={t("settings.delete_group")} onCancel={() => setDeleting(null)} footer={null} destroyOnClose>
           <div className="integration-form">
             <p>{t("admin.group_will_be_deleted", { name: deleting.name })}</p>
             {modalError && <div className="integration-form-error">{modalError}</div>}
@@ -137,7 +137,7 @@ export function GroupsSettingsCard({ groups, reload }: { groups: EmployeeGroup[]
               <Button variant="danger-outline" onClick={() => void remove()}>{t("common.delete")}</Button>
             </div>
           </div>
-        </Modal>
+        </ConstaModal>
       )}
     </>
   );

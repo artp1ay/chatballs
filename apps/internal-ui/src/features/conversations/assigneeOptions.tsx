@@ -1,5 +1,4 @@
-import type { ItemType } from "antd/es/menu/interface";
-
+import type { LegacyMenuItem } from "../../shared/ConstaMenu";
 import { Icon } from "../../shared/icons";
 import { SearchInput } from "../../shared/ui-controls";
 import { t } from "../../i18n";
@@ -48,7 +47,7 @@ function subtitleOf(employee: ChatDirectoryEmployee): string {
 function personItem(
   employee: ChatDirectoryEmployee,
   { viewerId, assigneeId, onPick }: { viewerId: number | null; assigneeId?: number; onPick: (id: number) => void },
-): ItemType {
+): LegacyMenuItem {
   const load = employee.openDialogs ?? 0;
   return {
     key: employee.id,
@@ -80,7 +79,7 @@ export function assigneeMenuItems({
   viewerId: number | null;
   assigneeId?: number;
   onPick: (id: number | null) => void;
-}): ItemType[] {
+}): LegacyMenuItem[] {
   const here = directory.employees.filter((employee) => employee.online);
   const away = directory.employees.filter((employee) => !employee.online);
   const pick = { viewerId, assigneeId, onPick: (id: number) => onPick(id) };

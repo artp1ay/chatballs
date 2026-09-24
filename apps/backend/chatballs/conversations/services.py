@@ -3,6 +3,7 @@ from django.utils import timezone
 
 from chatballs.conversations import transports
 from chatballs.conversations.models import (
+    AiTurnState,
     ConnectionIdentity,
     ControlMode,
     Conversation,
@@ -112,6 +113,15 @@ def claim_locked_conversation(*, context: TenantContext, conversation: Conversat
     leave_queue(conversation)
 
     conversation.save(update_fields=["control_mode", "assigned_operator", "expected_responder", "waiting_since"])
+
+    # Перехват отменяет все незавершённые ходы AI. Иначе результат, который уже
+    # вернулся из внешнего вызова, мог бы снова обслужить диалог после
+    # возврата оператора в AI.
+    Message.objects.filter(
+        conversation_id=conversation.id,
+        organization_id=context.organization_id,
+        ai_turn_state__in=(AiTurnState.PENDING, AiTurnState.RUNNING),
+    ).update(ai_turn_state=AiTurnState.DONE)
 
     Message.objects.create(
 

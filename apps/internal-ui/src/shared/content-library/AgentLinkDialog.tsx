@@ -1,4 +1,4 @@
-import { Modal } from "antd";
+import { ConstaModal } from "../ConstaModal";
 import { useState } from "react";
 
 import { SelectField } from "../form-controls";
@@ -57,7 +57,7 @@ export function AgentLinkDialog({
   const [action, setAction] = useState<AgentLinkAction>("attach");
 
   return (
-    <Modal className="content-link-modal" open title={title} onCancel={onCancel} footer={null} destroyOnClose>
+    <ConstaModal className="content-link-modal" open title={title} onCancel={onCancel} footer={null} destroyOnClose>
       <div className="content-dialog-body">
         {outcome ? (
           <p className="content-dialog-outcome">{outcomeText(outcome, countKey)}</p>
@@ -91,6 +91,6 @@ export function AgentLinkDialog({
           )}
         </div>
       </div>
-    </Modal>
+    </ConstaModal>
   );
 }

@@ -692,8 +692,8 @@ button.knowledge-section-twist:hover {
 
 /* --- Диалоги «Прикрепить к агенту» и «Переместить» (кадр KB3) --- */
 
-.knowledge-agent-dialog .ant-modal-content,
-.knowledge-move-dialog .ant-modal-content {
+.knowledge-agent-dialog .app-modal-card,
+.knowledge-move-dialog .app-modal-card {
   padding: 0;
   border-radius: 14px;
   overflow: hidden;
@@ -928,12 +928,14 @@ button.knowledge-section-twist:hover {
 }
 
 /* Меню строки знания (кадр KB1): 244px, пункты 32px — как в макете. */
-.app-dropdown.is-knowledge-menu .ant-dropdown-menu {
+.app-dropdown.is-knowledge-menu .app-dropdown-menu,
+.app-dropdown.is-knowledge-menu .ContextMenu {
   width: 244px;
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.16);
 }
 
-.app-dropdown.is-knowledge-menu .ant-dropdown-menu-item button {
+.app-dropdown.is-knowledge-menu .app-menu-item button,
+.app-dropdown.is-knowledge-menu .app-dropdown-item-button {
   min-height: 32px;
   gap: 9px;
   padding: 0 9px;
@@ -942,7 +944,7 @@ button.knowledge-section-twist:hover {
   font-weight: 500;
 }
 
-.app-dropdown.is-knowledge-menu .ant-dropdown-menu .ant-dropdown-menu-item-divider {
+.app-dropdown.is-knowledge-menu .app-menu-divider {
   margin: 5px 4px;
   background: var(--n-8);
 }

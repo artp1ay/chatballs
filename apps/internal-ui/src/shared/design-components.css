@@ -137,3 +137,83 @@
 }
 
 .decision-dialog.is-warning .decision-dialog-footer { padding-inline: 24px; }
+
+/* Общая карточка специализированных диалогов на Consta UI Modal. Внутренние
+   классы сохраняют совместимость со стилями существующих экранов, а сама
+   открытая/закрытая оболочка и фокус остаются у Consta. */
+.app-modal-window {
+  overflow: hidden;
+  border-radius: 16px;
+  background: var(--surface-card);
+  color: var(--n-1);
+}
+
+.app-modal-card {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  background: var(--surface-card);
+}
+
+.app-modal-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 56px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-default);
+}
+
+.app-modal-title {
+  flex: 1;
+  min-width: 0;
+  color: var(--text-heading);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.app-modal-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  flex: none;
+  margin: -6px -8px -6px 12px;
+  padding: 0;
+  color: var(--n-4);
+  background: transparent;
+  border: 0;
+  border-radius: 7px;
+  cursor: pointer;
+}
+
+.app-modal-close:hover {
+  color: var(--n-2);
+  background: var(--n-9);
+}
+
+.app-modal-close:focus-visible {
+  outline: 2px solid var(--primary-border);
+  outline-offset: 2px;
+}
+
+.app-modal-body {
+  min-width: 0;
+}
+
+.app-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--border-default);
+}
+
+.app-modal-footer:empty {
+  display: none;
+}

@@ -1,5 +1,5 @@
-// Типы данных модуля гибкой маршрутизации диалогов и правил подключения AI
-// См. архитектурную спецификацию: docs/architecture/adr-flexible-routing-and-rules-engine.md
+// Типы данных модуля гибкой маршрутизации диалогов и правил подключения AI.
+// Источник истины для JSON-дерева условий — backend-валидатор channels/rules.
 
 export type ChannelRoutingMode = "AI_FIRST" | "HUMAN_ONLY" | "RULE_BASED";
 
@@ -35,23 +35,38 @@ export type ConditionFieldKey =
   | "message.regex_match"
   | "conversation.is_first_message";
 
+/** Операторы, которые backend принимает именно для этих предикатов. */
 export type ConditionOpKey =
   | "eq"
   | "neq"
   | "contains"
+  | "not_contains"
   | "contains_any"
+  | "contains_all"
+  | "regex"
   | "regex_match";
 
 export type RuleCondition = {
-  field: string;
-  op: string;
+  field: ConditionFieldKey;
+  op: ConditionOpKey;
   value: unknown;
 };
 
-export type RuleConditionTree = {
-  all?: RuleCondition[];
-  any?: RuleCondition[];
-};
+export type RuleConditionAll = { all: RuleConditionTree[] };
+export type RuleConditionAny = { any: RuleConditionTree[] };
+export type RuleConditionNot = { not: RuleConditionTree };
+export type EmptyRuleConditionTree = Record<string, never>;
+
+/**
+ * Узел дерева правила. Пустой объект — правило без дополнительных условий;
+ * группы `all`/`any` содержат списки, а `not` — ровно один вложенный узел.
+ */
+export type RuleConditionTree =
+  | RuleCondition
+  | RuleConditionAll
+  | RuleConditionAny
+  | RuleConditionNot
+  | EmptyRuleConditionTree;
 
 export type ChannelRoutingRule = {
   id: number;
@@ -65,6 +80,7 @@ export type ChannelRoutingRule = {
   conditions: RuleConditionTree;
   action_target: RuleActionTarget;
   target_group: number | null;
+  target_group_id?: number | null;
   target_group_name?: string | null;
   created_at?: string;
   updated_at?: string;
@@ -79,4 +95,5 @@ export type RoutingRuleInput = {
   conditions: RuleConditionTree;
   action_target: RuleActionTarget;
   target_group?: number | null;
+  target_group_id?: number | null;
 };

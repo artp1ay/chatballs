@@ -1,4 +1,4 @@
-import { Dropdown } from "antd";
+import { ConstaMenu } from "../shared/ConstaMenu";
 import type { CSSProperties } from "react";
 
 import type { RouteKey, SessionUser } from "../types";
@@ -118,7 +118,7 @@ export function Sidebar({
         </button>
         {/* Переключатель организации (дизайн-базлайн v2, A1): все организации
             человека, текущая отмечена; выбор другой открывает её стартовый экран. */}
-        <Dropdown
+        <ConstaMenu
           trigger={["click"]}
           placement="bottomLeft"
           overlayClassName="app-dropdown is-wide"
@@ -164,7 +164,7 @@ export function Sidebar({
             <span>{user.organizationName || "Chatballs"}</span>
             <Icon name="chevron" size={14} />
           </button>
-        </Dropdown>
+        </ConstaMenu>
       </div>
       {manager ? (
         <nav className="hub-nav">

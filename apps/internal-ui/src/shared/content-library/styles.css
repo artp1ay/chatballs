@@ -2,11 +2,11 @@
    к агенту. Ими пользуется портал поддержки; у «Базы знаний» после редизайна
    (кадры KB3/KB7) свои экраны. Стили переехали сюда вместе с компонентами. */
 
-.content-category-modal .ant-modal-content { padding: 0; overflow: hidden; border-radius: 16px; }
-.content-category-modal .ant-modal-header { margin: 0; padding: 18px 20px; border-bottom: 1px solid var(--n-8); }
-.content-category-modal .ant-modal-close { top: 18px; right: 18px; }
-.content-category-modal .ant-modal-body { padding: 12px 12px 8px; }
-.content-category-modal .ant-modal-footer { margin: 0; padding: 14px 20px; border-top: 1px solid var(--n-8); }
+.content-category-modal .app-modal-card { padding: 0; overflow: hidden; border-radius: 16px; }
+.content-category-modal .app-modal-header { margin: 0; padding: 18px 20px; border-bottom: 1px solid var(--n-8); }
+.content-category-modal .app-modal-close { top: 18px; right: 18px; }
+.content-category-modal .app-modal-body { padding: 12px 12px 8px; }
+.content-category-modal .app-modal-footer { margin: 0; padding: 14px 20px; border-top: 1px solid var(--n-8); }
 
 .content-category-modal-title { display: flex; flex-direction: column; gap: 2px; }
 .content-category-modal-title strong { color: var(--n-1); font-size: 16px; }

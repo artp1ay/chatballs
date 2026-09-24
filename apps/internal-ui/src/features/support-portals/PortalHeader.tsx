@@ -1,4 +1,4 @@
-import { Dropdown } from "antd";
+import { ConstaMenu } from "../../shared/ConstaMenu";
 
 import { Icon } from "../../shared/icons";
 import { StatusPill } from "../../shared/ui";
@@ -115,11 +115,11 @@ export function PortalHeader({
             {canManage && !archived && (
               <Button variant="primary" className="portal-primary-action" icon="plus" onClick={onCreateArticle}>{t("portals.new_article")}</Button>
             )}
-            <Dropdown menu={{ items: menuItems }} overlayClassName="app-dropdown is-portal-menu" placement="bottomRight" trigger={["click"]}>
+            <ConstaMenu menu={{ items: menuItems }} overlayClassName="app-dropdown is-portal-menu" placement="bottomRight" trigger={["click"]}>
               <button aria-label={t("common.more")} className="portal-more-button" title={t("common.more")} type="button">
                 <Icon name="more" size={16} strokeWidth={2} />
               </button>
-            </Dropdown>
+            </ConstaMenu>
           </div>
         </div>
       </div>

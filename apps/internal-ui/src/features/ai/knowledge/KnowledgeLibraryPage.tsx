@@ -1,4 +1,4 @@
-import { Dropdown } from "antd";
+import { ConstaMenu } from "../../../shared/ConstaMenu";
 import { useState } from "react";
 
 import { hasCapability } from "../../../auth/access";
@@ -144,7 +144,7 @@ export function KnowledgeLibraryPage({
             {canManage && (
               <Button variant="primary" className="knowledge-primary-action" icon="plus" onClick={() => openKnowledgeEditor(null)}>{t("ai.add_knowledge_item")}</Button>
             )}
-            <Dropdown
+            <ConstaMenu
               menu={{ items: [
                 { key: "categories", label: <button type="button" onClick={() => setRoute("knowledgeCategories")}><Icon name="folder" size={15} strokeWidth={1.9} />{t("common.categories")}</button> },
                 { key: "import", label: <button type="button" onClick={() => setRoute("knowledgeImport")}><Icon name="import" size={15} strokeWidth={1.9} />{t("ai.yaml_import")}</button> },
@@ -156,7 +156,7 @@ export function KnowledgeLibraryPage({
               <button aria-label={t("common.more")} className="knowledge-more-button" title={t("common.more")} type="button">
                 <Icon name="more" size={16} strokeWidth={2} />
               </button>
-            </Dropdown>
+            </ConstaMenu>
           </div>
         </div>
       </div>
@@ -331,9 +331,9 @@ export function KnowledgeLibraryPage({
                             {item.updatedBy && <small>{item.updatedBy}</small>}
                           </td>
                           <td className="row-actions" onClick={(event) => event.stopPropagation()}>
-                            <Dropdown menu={{ items: menuItems }} overlayClassName="app-dropdown is-knowledge-menu" placement="bottomRight" trigger={["click"]}>
+                            <ConstaMenu menu={{ items: menuItems }} overlayClassName="app-dropdown is-knowledge-menu" placement="bottomRight" trigger={["click"]}>
                               <button aria-label={t("common.actions_for", { name: item.title })} className="row-menu-button" type="button"><Icon name="more" size={16} strokeWidth={2} /></button>
-                            </Dropdown>
+                            </ConstaMenu>
                           </td>
                         </tr>
                       );

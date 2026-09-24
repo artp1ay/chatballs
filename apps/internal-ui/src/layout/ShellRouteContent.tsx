@@ -74,6 +74,7 @@ export function ShellRouteContent({ settingsSection, openSettings, chatScope, se
           agentId={selectedAgentId}
           groups={data.groups}
           canManage={hasCapability(user, "ai.manage")}
+          canManageRouting={hasCapability(user, "channels.manage")}
           canManageConnections={hasCapability(user, "integrations.manage")}
           openAgents={() => setRoute("agents")}
           openKnowledge={openKnowledge}

@@ -89,7 +89,7 @@ export function ChannelRoutingCard({ channelId, groups, canManage }: Props) {
   }
 
   return (
-    <section className="agent-card routing-card">
+    <section className="agent-card routing-card" data-testid="routing-card">
       <div className="agent-card-head is-row">
         <div>
           <h3>{t("routing.card_title")}</h3>
@@ -110,6 +110,7 @@ export function ChannelRoutingCard({ channelId, groups, canManage }: Props) {
               type="button"
               disabled={!canManage || savingMode}
               className={`routing-mode-option ${selected ? "is-selected" : ""}`}
+              data-testid={`routing-mode-${item}`}
               onClick={() => void handleModeChange(item)}
             >
               <div className="routing-mode-option-header">
@@ -135,6 +136,7 @@ export function ChannelRoutingCard({ channelId, groups, canManage }: Props) {
             variant="secondary"
             onClick={() => setHoursModalOpen(true)}
             icon="settings"
+            data-testid="open-business-hours-modal"
           >
             {t("routing.configure_hours")}
           </Button>

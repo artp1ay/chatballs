@@ -1,4 +1,4 @@
-import { Modal } from "antd";
+import { ConstaModal } from "../../shared/ConstaModal";
 import { useState } from "react";
 
 import { EmptyState } from "../../shared/ui";
@@ -57,7 +57,7 @@ export function ReplyTemplatesCard({ items, canManage, reload, onEdit }: {
         ))}
       </div>
       {deleting && (
-        <Modal open title={t("settings.delete_template")} onCancel={() => setDeleting(null)} footer={null} destroyOnClose>
+        <ConstaModal open title={t("settings.delete_template")} onCancel={() => setDeleting(null)} footer={null} destroyOnClose>
           <div className="integration-form">
             <p>{t("settings.template_will_be_deleted", { name: deleting.title })}</p>
             {deleteError && <div className="integration-form-error">{deleteError}</div>}
@@ -66,7 +66,7 @@ export function ReplyTemplatesCard({ items, canManage, reload, onEdit }: {
               <Button variant="danger-outline" onClick={() => void remove()}>{t("common.delete")}</Button>
             </div>
           </div>
-        </Modal>
+        </ConstaModal>
       )}
     </>
   );

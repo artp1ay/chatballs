@@ -18,10 +18,9 @@ export default defineConfig(({ mode }) => {
               || id.includes("/scheduler/")
             ) return "vendor-react";
             if (
-              id.includes("/antd/")
-              || id.includes("@ant-design/")
-              || id.includes("/rc-")
-              || id.includes("/dayjs/")
+              id.includes("/@consta/")
+              || id.includes("/@bem-react/")
+              || id.includes("/@reatom/")
             ) return "vendor-ui";
             return undefined;
           },

@@ -1,4 +1,4 @@
-import { Modal } from "antd";
+import { ConstaModal } from "../../../shared/ConstaModal";
 import { useState } from "react";
 
 import { Icon } from "../../../shared/icons";
@@ -28,7 +28,7 @@ export function KnowledgeCategoryDialog({
   const [categoryId, setCategoryId] = useState<number | null>(rows[0]?.category.id ?? null);
 
   return (
-    <Modal className="knowledge-move-dialog" open width={480} title={null} footer={null} closable={false} onCancel={onCancel} destroyOnHidden>
+    <ConstaModal className="knowledge-move-dialog" open width={480} title={null} footer={null} closable={false} onCancel={onCancel} destroyOnHidden>
       <header className="knowledge-agent-dialog-head">
         <div className="knowledge-agent-dialog-title">
           <div>
@@ -66,6 +66,6 @@ export function KnowledgeCategoryDialog({
         <Button variant="secondary" disabled={busy} onClick={onCancel}>{t("common.cancel")}</Button>
         <Button variant="primary" disabled={busy || categoryId === null} onClick={() => categoryId !== null && onSubmit(categoryId)}>{t("ai.move")}</Button>
       </footer>
-    </Modal>
+    </ConstaModal>
   );
 }

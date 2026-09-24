@@ -1,4 +1,4 @@
-import { Dropdown } from "antd";
+import { ConstaMenu } from "../../../shared/ConstaMenu";
 import { useState } from "react";
 
 import { ChannelGlyph } from "../../../shared/badges";
@@ -69,9 +69,9 @@ export function SalesClientHeader({ client, canEdit = false, openConversation, o
       {!editing && (
         <div className="sales-client-detail-actions">
           <Button icon="message" variant="primary" disabled={!targetDialog} onClick={() => targetDialog && openConversation(targetDialog.id)}>{t("sales.open_conversation")}</Button>
-          <Dropdown menu={{ items: menuItems }} open={menuOpen} onOpenChange={setMenuOpen} trigger={["click"]} overlayClassName="app-dropdown is-wide">
+          <ConstaMenu menu={{ items: menuItems }} open={menuOpen} onOpenChange={setMenuOpen} trigger={["click"]} overlayClassName="app-dropdown is-wide">
             <button className="sales-client-more" type="button" aria-label={t("sales.contact_actions")}><Icon name="more" size={17} /></button>
-          </Dropdown>
+          </ConstaMenu>
         </div>
       )}
     </div>

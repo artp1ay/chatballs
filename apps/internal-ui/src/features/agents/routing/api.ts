@@ -1,4 +1,4 @@
-import { api } from "../../../api/client";
+import { api, ApiError } from "../../../api/client";
 import type {
   ChannelBusinessHours,
   ChannelRoutingMode,
@@ -6,32 +6,42 @@ import type {
   RoutingRuleInput,
 } from "./types";
 
+type ChannelRoutingPayload = {
+  id?: number;
+  routing_mode?: ChannelRoutingMode;
+  routingMode?: ChannelRoutingMode;
+};
+
+type RoutingRulesResponse = { items?: ChannelRoutingRule[] } | ChannelRoutingRule[];
+
+/**
+ * Все tenant-маршруты проходят через общий api-клиент: он добавляет
+ * `/organizations/{public_id}` и CSRF/credentials. Здесь оставляем только
+ * канонический versioned path — отдельного unscoped fallback в production нет.
+ */
 async function channelRequest<T>(
   path: string,
   options?: RequestInit,
 ): Promise<T> {
-  try {
-    return await api<T>(`/api/v1/channels/${path}`, options);
-  } catch (caught) {
-    // Резервный вызов без префикса версии согласно контракту спецификации ADR
-    return await api<T>(`/api/channels/${path}`, options);
-  }
+  return api<T>(`/api/v1/channels/${path}`, options);
 }
 
 export async function fetchChannelRoutingMode(
   channelId: number,
 ): Promise<ChannelRoutingMode> {
-  const data = await channelRequest<{ routing_mode?: ChannelRoutingMode; routingMode?: ChannelRoutingMode }>(
-    `${channelId}/`,
-  );
-  return data.routing_mode ?? data.routingMode ?? "AI_FIRST";
+  const data = await channelRequest<ChannelRoutingPayload>(`${channelId}/`);
+  const mode = data.routing_mode ?? data.routingMode;
+  if (!mode) {
+    throw new Error("Routing mode is missing from the channel response");
+  }
+  return mode;
 }
 
 export async function updateChannelRoutingMode(
   channelId: number,
   routingMode: ChannelRoutingMode,
-): Promise<{ routing_mode: ChannelRoutingMode }> {
-  return channelRequest<{ routing_mode: ChannelRoutingMode }>(`${channelId}/`, {
+): Promise<ChannelRoutingPayload> {
+  return channelRequest<ChannelRoutingPayload>(`${channelId}/`, {
     method: "PATCH",
     body: JSON.stringify({ routing_mode: routingMode }),
   });
@@ -39,8 +49,14 @@ export async function updateChannelRoutingMode(
 
 export async function fetchBusinessHours(
   channelId: number,
-): Promise<ChannelBusinessHours> {
-  return channelRequest<ChannelBusinessHours>(`${channelId}/business-hours/`);
+): Promise<ChannelBusinessHours | null> {
+  try {
+    return await channelRequest<ChannelBusinessHours>(`${channelId}/business-hours/`);
+  } catch (error) {
+    // Отсутствие записи — штатное состояние «расписание не настроено».
+    if (error instanceof ApiError && error.status === 404) return null;
+    throw error;
+  }
 }
 
 export async function saveBusinessHours(
@@ -56,12 +72,8 @@ export async function saveBusinessHours(
 export async function fetchRoutingRules(
   channelId: number,
 ): Promise<ChannelRoutingRule[]> {
-  const response = await channelRequest<{ items?: ChannelRoutingRule[] } | ChannelRoutingRule[]>(
-    `${channelId}/routing-rules/`,
-  );
-  if (Array.isArray(response)) {
-    return response;
-  }
+  const response = await channelRequest<RoutingRulesResponse>(`${channelId}/routing-rules/`);
+  if (Array.isArray(response)) return response;
   return response.items ?? [];
 }
 
@@ -100,11 +112,10 @@ export async function deleteRoutingRule(
 
 export async function reorderRoutingRules(
   channelId: number,
-  orderedRules: Array<{ id: number; priority: number }>,
-): Promise<void> {
-  await Promise.all(
-    orderedRules.map((rule) =>
-      updateRoutingRule(channelId, rule.id, { priority: rule.priority }),
-    ),
-  );
+  orderedRules: Array<{ id: number; priority?: number }>,
+): Promise<{ updated_count: number }> {
+  return channelRequest<{ updated_count: number }>(`${channelId}/routing-rules/reorder/`, {
+    method: "POST",
+    body: JSON.stringify({ rule_ids: orderedRules.map((rule) => rule.id) }),
+  });
 }

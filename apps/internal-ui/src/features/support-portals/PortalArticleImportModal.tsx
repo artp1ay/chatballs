@@ -1,4 +1,4 @@
-import { Modal } from "antd";
+import { ConstaModal } from "../../shared/ConstaModal";
 import { useState } from "react";
 
 import { Icon } from "../../shared/icons";
@@ -50,7 +50,7 @@ export function PortalArticleImportModal({ portalId, onClose, onImported }: Port
   }
 
   return (
-    <Modal open title={t("portals.import_articles_from_yaml")} onCancel={onClose} footer={null} destroyOnClose>
+    <ConstaModal open title={t("portals.import_articles_from_yaml")} onCancel={onClose} footer={null} destroyOnClose>
       <div className="integration-form">
         <label className="knowledge-import-file">
           <span>
@@ -84,6 +84,6 @@ export function PortalArticleImportModal({ portalId, onClose, onImported }: Port
           </Button>
         </div>
       </div>
-    </Modal>
+    </ConstaModal>
   );
 }

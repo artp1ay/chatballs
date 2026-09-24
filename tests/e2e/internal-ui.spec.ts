@@ -560,7 +560,7 @@ test("владелец добавляет организацию из перек
   await page.getByPlaceholder("Например, «Ателье Норд»").fill("Вторая компания");
   // Язык интерфейса — селект приложения, как часовой пояс.
   await page.getByRole("button", { name: "Язык интерфейса" }).click();
-  await page.locator(".app-dropdown.is-field .ant-dropdown-menu-item", { hasText: "English" }).click();
+  await page.locator(".app-dropdown.is-field .app-menu-item", { hasText: "English" }).click();
   await page.getByRole("button", { name: "Создать организацию" }).click();
 
   // Сразу в новой организации: адрес и переключатель показывают её.
@@ -647,7 +647,7 @@ test("экран сотрудников: список, создание, кар�
   // Кандидатами могут быть только активные администраторы: сотрудника в списке
   // быть не должно.
   await transferDialog.getByRole("button", { name: "Новый владелец" }).click();
-  const candidates = page.locator(".app-dropdown.is-field .ant-dropdown-menu-item");
+  const candidates = page.locator(".app-dropdown.is-field .app-menu-item");
   await expect(candidates).toHaveCount(1);
   await expect(candidates).toContainText("Анна Ким");
   await page.keyboard.press("Escape");

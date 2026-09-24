@@ -1,4 +1,4 @@
-import { Modal } from "antd";
+import { ConstaModal } from "../../shared/ConstaModal";
 import { useCallback, useEffect, useState } from "react";
 
 import { api } from "../../api/client";
@@ -166,7 +166,7 @@ export function DemoDataCard({ reload }: { reload: () => void }) {
       {state?.status === "FAILED" && state.error && <div className="settings-section-error">{state.error}</div>}
       {error && <div className="settings-section-error">{error}</div>}
       {confirmRemove && (
-        <Modal open title={t("settings.remove_demo_data_2")} onCancel={() => setConfirmRemove(false)} footer={null} destroyOnClose>
+        <ConstaModal open title={t("settings.remove_demo_data_2")} onCancel={() => setConfirmRemove(false)} footer={null} destroyOnClose>
           <div className="integration-form">
             <p>{t("settings.every_record_demo_set_will")}</p>
             {error && <div className="integration-form-error">{error}</div>}
@@ -175,7 +175,7 @@ export function DemoDataCard({ reload }: { reload: () => void }) {
               <Button variant="danger-outline" disabled={submitting} onClick={() => void remove()}>{t("common.delete")}</Button>
             </div>
           </div>
-        </Modal>
+        </ConstaModal>
       )}
     </div>
   );

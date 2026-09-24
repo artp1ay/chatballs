@@ -1,4 +1,4 @@
-import { Dropdown } from "antd";
+import { ConstaMenu } from "../../shared/ConstaMenu";
 import { useState } from "react";
 
 import { Icon, MaxLogo, TelegramLogo, VkLogo } from "../../shared/icons";
@@ -93,9 +93,9 @@ export function RowActions({ integration, testing, onTest, onEdit, onToggleActiv
       <Button variant="secondary" icon="refresh" iconSize={13} disabled={!meta.checkable || testing} onClick={() => onTest(integration)}>
         {testing ? t("settings.checking_2") : t("settings.check")}
       </Button>
-      <Dropdown menu={{ items: menuItems }} open={open} onOpenChange={setOpen} trigger={["click"]} overlayClassName="app-dropdown">
+      <ConstaMenu menu={{ items: menuItems }} open={open} onOpenChange={setOpen} trigger={["click"]} overlayClassName="app-dropdown">
         <button className="row-menu-button" type="button" aria-label={t("settings.integration_actions")}><Icon name="more" /></button>
-      </Dropdown>
+      </ConstaMenu>
     </div>
   );
 }

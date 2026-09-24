@@ -303,29 +303,29 @@
 
 /* Создание агента (кадр G2). */
 
-.agent-create-modal .ant-modal-content,
-.agent-knowledge-modal .ant-modal-content {
+.agent-create-modal .app-modal-card,
+.agent-knowledge-modal .app-modal-card {
   padding: 22px 24px;
   border-radius: 14px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
 
-.agent-create-modal .ant-modal-header,
-.agent-knowledge-modal .ant-modal-header {
+.agent-create-modal .app-modal-header,
+.agent-knowledge-modal .app-modal-header {
   margin: 0 0 6px;
   padding: 0;
 }
 
-.agent-create-modal .ant-modal-title,
-.agent-knowledge-modal .ant-modal-title {
+.agent-create-modal .app-modal-title,
+.agent-knowledge-modal .app-modal-title {
   color: var(--n-1);
   font-size: 16px;
   font-weight: 700;
   line-height: 28px;
 }
 
-.agent-create-modal .ant-modal-close,
-.agent-knowledge-modal .ant-modal-close {
+.agent-create-modal .app-modal-close,
+.agent-knowledge-modal .app-modal-close {
   top: 22px;
   right: 24px;
   width: 28px;
@@ -334,8 +334,8 @@
   color: var(--n-4);
 }
 
-.agent-create-modal .ant-modal-body,
-.agent-knowledge-modal .ant-modal-body {
+.agent-create-modal .app-modal-body,
+.agent-knowledge-modal .app-modal-body {
   padding: 0;
 }
 

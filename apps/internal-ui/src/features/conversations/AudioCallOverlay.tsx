@@ -1,9 +1,9 @@
-// Аудиозвонок (оператор): antd Modal + AudioCallView (baseline «Аудиозвонок.dc.html»).
+// Аудиозвонок (оператор): Consta UI Modal + AudioCallView (baseline «Аудиозвонок.dc.html»).
 // Видео не запрашивается. Флоу: incoming/ringing → connecting → active → терминал,
 // без pre-call (нет этапа проверки камеры). Параллель VideoCallOverlay, но под аудио.
 
 import { AudioCallView, type AudioCallMode, buildAudioStatus, isTerminalCallStatus, useCallRtcSession, useLoopingAudio } from "@chatballs/ui";
-import { Modal } from "antd";
+import { ConstaModal } from "../../shared/ConstaModal";
 import { useEffect, useState } from "react";
 
 import { providerMeta } from "../../shared/providers";
@@ -98,7 +98,7 @@ export function AudioCallOverlay(props: Props) {
   };
 
   return (
-    <Modal open={props.open} onCancel={() => void endAndClose()} footer={null} closable={false} width={428} className="call-modal audio-call-modal" destroyOnHidden>
+    <ConstaModal open={props.open} onCancel={() => void endAndClose()} footer={null} closable={false} width={428} className="call-modal audio-call-modal" destroyOnHidden>
       <AudioCallView
         mode={mode}
         status={status ?? undefined}
@@ -125,7 +125,7 @@ export function AudioCallOverlay(props: Props) {
         onCallAgain={props.onRetry}
         onRetry={onRetry}
       />
-    </Modal>
+    </ConstaModal>
   );
 }
 

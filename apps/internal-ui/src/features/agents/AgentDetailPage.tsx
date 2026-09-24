@@ -1,4 +1,5 @@
-import { Dropdown, Modal } from "antd";
+import { ConstaMenu } from "../../shared/ConstaMenu";
+import { ConstaModal } from "../../shared/ConstaModal";
 import { useCallback, useEffect, useState } from "react";
 
 import { LANGUAGES } from "@chatballs/shared";
@@ -74,6 +75,7 @@ export function AgentDetailPage({
   agentId,
   groups,
   canManage,
+  canManageRouting,
   canManageConnections,
   openAgents,
   openKnowledge,
@@ -84,6 +86,7 @@ export function AgentDetailPage({
   agentId: number | null;
   groups: EmployeeGroup[];
   canManage: boolean;
+  canManageRouting: boolean;
   canManageConnections: boolean;
   openAgents: () => void;
   openKnowledge: (knowledgeId: number) => void;
@@ -269,9 +272,9 @@ export function AgentDetailPage({
             <Button variant="secondary" className="agent-toggle" icon={running ? "pause" : "bolt"} disabled={busy} onClick={() => void toggleAi()}>
               {running ? t("ai.stop_ai") : t("ai.start_ai")}
             </Button>
-            <Dropdown menu={{ items: menuItems }} open={menuOpen} onOpenChange={setMenuOpen} trigger={["click"]} overlayClassName="app-dropdown">
+            <ConstaMenu menu={{ items: menuItems }} open={menuOpen} onOpenChange={setMenuOpen} trigger={["click"]} overlayClassName="app-dropdown">
               <button className="agent-head-menu" type="button" aria-label={t("ai.agent_actions")} title={t("common.actions")}><Icon name="more" size={17} strokeWidth={2} /></button>
-            </Dropdown>
+            </ConstaMenu>
           </div>
         )}
       </header>
@@ -295,7 +298,7 @@ export function AgentDetailPage({
         <div className="agent-column">
           <InstructionsCard card={card} canManage={canManage} busy={busy} apply={apply} />
           <KnowledgeCard card={card} canManage={canManage} openKnowledge={openKnowledge} reload={reload} />
-          <ChannelRoutingCard channelId={card.id} groups={groups} canManage={canManage} />
+          <ChannelRoutingCard channelId={card.id} groups={groups} canManage={canManageRouting} />
         </div>
         <div className="agent-column">
           <AssignmentCard card={card} groups={groups} canManage={canManage} busy={busy} apply={apply} />
@@ -313,7 +316,7 @@ export function AgentDetailPage({
       </div>
 
       {deleting && (
-        <Modal
+        <ConstaModal
           open
           title={t("ai.delete_agent_2")}
           okText={t("common.delete")}
@@ -323,7 +326,7 @@ export function AgentDetailPage({
           onCancel={() => setDeleting(false)}
         >
           <p>{t("ai.agent_will_be_deleted", { name: card.name })}</p>
-        </Modal>
+        </ConstaModal>
       )}
     </div>
   );

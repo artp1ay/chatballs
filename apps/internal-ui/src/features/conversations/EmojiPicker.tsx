@@ -1,10 +1,10 @@
-import { Dropdown } from "antd";
+import { ConstaMenu } from "../../shared/ConstaMenu";
 import { useState } from "react";
 
 import { Icon } from "../../shared/icons";
 import { t } from "../../i18n";
 
-// Эмодзи в композере (дизайн-базлайн v2, кнопка «Эмодзи»): antd Dropdown —
+// Эмодзи в композере (дизайн-базлайн v2, кнопка «Эмодзи»): Consta UI Popover —
 // единый стандарт всплывающих меню — с сеткой частых эмодзи для переписки.
 
 const EMOJI = [
@@ -16,7 +16,7 @@ const EMOJI = [
 export function EmojiPicker({ onPick, disabled }: { onPick: (emoji: string) => void; disabled?: boolean }) {
   const [open, setOpen] = useState(false);
   return (
-    <Dropdown
+    <ConstaMenu
       open={open}
       onOpenChange={setOpen}
       trigger={["click"]}
@@ -43,6 +43,6 @@ export function EmojiPicker({ onPick, disabled }: { onPick: (emoji: string) => v
       <button className="composer-tool" title={t("common.emoji")} aria-label={t("common.emoji")} type="button" disabled={disabled}>
         <Icon name="smile" size={17} />
       </button>
-    </Dropdown>
+    </ConstaMenu>
   );
 }

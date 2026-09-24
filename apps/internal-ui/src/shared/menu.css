@@ -1,13 +1,13 @@
-/* Единое оформление выпадающих меню приложения (antd Dropdown).
+/* Единое оформление выпадающих меню приложения на Consta UI.
 
    Один стандарт на всё: меню строки таблицы, меню пользователя в сайдбаре,
-   действия карточки. Своих меню на absolute-позиционировании и подложках
-   больше нет — портал antd сам закрывается по клику вне и по Esc и не
-   обрезается overflow-контейнерами. */
+   действия карточки. Позиционирование, портал и закрытие по клику вне/Esc
+   выполняет Consta UI. */
 
 /* Геометрия по дизайн-базлайну v2 (кадр C, меню ⋯): 220px, отступ 5,
    скругление 10, пункты 33px r7, разделитель n-9. */
-.app-dropdown .ant-dropdown-menu {
+.app-dropdown .app-dropdown-menu,
+.app-dropdown .ContextMenu {
   width: 220px;
   padding: 5px;
   background: var(--surface-card);
@@ -16,54 +16,63 @@
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
 }
 
-.app-dropdown .ant-dropdown-menu .ant-dropdown-menu-item-divider {
+.app-dropdown .app-dropdown-menu .app-menu-divider,
+.app-dropdown .ContextMenu .app-menu-divider {
   margin: 4px 8px;
   background: var(--n-9);
 }
 
-.app-dropdown.is-wide .ant-dropdown-menu {
+.app-dropdown.is-wide .app-dropdown-menu,
+.app-dropdown.is-wide .ContextMenu {
   width: 216px;
 }
 
 /* Меню селекта в форме: ширину задаёт поле, ширина приходит инлайном на
    оверлей — фиксированные 216px фильтра здесь были бы уже или шире поля. */
-.app-dropdown.is-field .ant-dropdown-menu {
+.app-dropdown.is-field .app-dropdown-menu,
+.app-dropdown.is-field .ContextMenu {
   width: 100%;
 }
 
 /* Текущее значение в одиночном селекте: подсветка вместо галочки. */
-.app-dropdown .ant-dropdown-menu-item button.is-selected {
+.app-dropdown .app-menu-item button.is-selected,
+.app-dropdown .app-dropdown-item-button.is-selected {
   color: var(--primary-text);
   background: var(--primary-bg);
   font-weight: 600;
 }
 
-.app-dropdown.is-channels-menu .ant-dropdown-menu {
+.app-dropdown.is-channels-menu .app-dropdown-menu,
+.app-dropdown.is-channels-menu .ContextMenu {
   width: 246px;
 }
 
 /* Меню строки сотрудника (дизайн-базлайн v2, кадр E2): 246px, отступ 6,
    пункты 32px, тень глубже — карточка перекрывает таблицу. */
-.app-dropdown.is-employee-menu .ant-dropdown-menu {
+.app-dropdown.is-employee-menu .app-dropdown-menu,
+.app-dropdown.is-employee-menu .ContextMenu {
   width: 246px;
   padding: 6px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
 }
 
-.app-dropdown.is-employee-menu .ant-dropdown-menu-item button {
+.app-dropdown.is-employee-menu .app-menu-item button,
+.app-dropdown.is-employee-menu .app-dropdown-item-button {
   min-height: 32px;
   padding: 0 10px;
 }
 
-.app-dropdown.is-employee-menu .ant-dropdown-menu .ant-dropdown-menu-item-divider {
+.app-dropdown.is-employee-menu .app-dropdown-menu .app-menu-divider,
+.app-dropdown.is-employee-menu .ContextMenu .app-menu-divider {
   margin: 4px 6px;
 }
 
-.app-dropdown .ant-dropdown-menu-item {
+.app-dropdown .app-menu-item {
   padding: 0 !important;
 }
 
-.app-dropdown .ant-dropdown-menu-item button {
+.app-dropdown .app-menu-item button,
+.app-dropdown .app-dropdown-item-button {
   width: 100%;
   min-height: 33px;
   display: flex;
@@ -82,30 +91,38 @@
   white-space: nowrap;
 }
 
-.app-dropdown .ant-dropdown-menu-item button.warning {
+.app-dropdown .app-menu-item button.warning,
+.app-dropdown .app-dropdown-item-button.warning {
   color: var(--warning-text);
 }
 
-.app-dropdown .ant-dropdown-menu-item button.danger {
+.app-dropdown .app-menu-item button.danger,
+.app-dropdown .app-dropdown-item-button.danger {
   color: var(--error-text);
 }
 
-.app-dropdown .ant-dropdown-menu-item button.success {
+.app-dropdown .app-menu-item button.success,
+.app-dropdown .app-dropdown-item-button.success {
   color: var(--success-text);
 }
 
-.app-dropdown .ant-dropdown-menu-item-disabled button {
+.app-dropdown .app-menu-item-disabled button,
+.app-dropdown .app-menu-item[aria-disabled="true"] button,
+.app-dropdown .app-menu-item[aria-disabled="true"] .app-dropdown-item-button {
   color: var(--n-5);
   cursor: not-allowed;
 }
 
-.app-dropdown .ant-dropdown-menu-item-disabled button.danger,
-.app-dropdown .ant-dropdown-menu-item-disabled button.danger small {
+.app-dropdown .app-menu-item-disabled button.danger,
+.app-dropdown .app-menu-item[aria-disabled="true"] button.danger,
+.app-dropdown .app-menu-item-disabled button.danger small,
+.app-dropdown .app-menu-item[aria-disabled="true"] button.danger small {
   color: var(--text-disabled);
 }
 
 /* Причина недоступного пункта — второй строкой под названием. */
-.app-dropdown .ant-dropdown-menu-item button small {
+.app-dropdown .app-menu-item button small,
+.app-dropdown .app-dropdown-item-button small {
   display: block;
   margin-top: 2px;
   color: var(--n-5);
@@ -113,7 +130,8 @@
   font-weight: 400;
 }
 
-.app-dropdown .ant-dropdown-menu-item button span {
+.app-dropdown .app-menu-item button span,
+.app-dropdown .app-dropdown-item-button span {
   display: block;
 }
 
@@ -141,8 +159,7 @@
   outline-offset: 2px;
 }
 
-/* SelectMenu и FilterDropdown используют ContextMenu. Общие классы antd-пунктов
-   выше остаются для следующих миграций, а здесь сохраняется тот же ритм меню
+/* SelectMenu и FilterDropdown используют ContextMenu. Сохраняется тот же ритм меню
    на классах ListItem/ContextMenuWrapper. */
 .app-dropdown.ContextMenuWrapper {
   width: 220px !important;
@@ -201,4 +218,56 @@
 .app-dropdown.ContextMenuWrapper .ListItem:focus-visible {
   outline: 2px solid var(--primary-border);
   outline-offset: -2px;
+}
+
+/* Семантические классы адаптера `ConstaMenu`. Старые селекторы выше продолжают
+   задавать размеры и ритм, а эти правила явно фиксируют состояния, которые
+   появляются только у ContextMenu. */
+.app-consta-menu .app-menu-group {
+  min-height: 28px;
+  padding: 8px 10px 4px;
+  color: var(--n-5);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.app-consta-menu .app-menu-group .app-menu-group-label {
+  display: block;
+  width: 100%;
+  white-space: nowrap;
+}
+
+.app-consta-menu .app-menu-divider {
+  min-height: 1px;
+  height: 1px;
+  margin: 4px 8px;
+  padding: 0;
+  border: 0;
+  background: var(--n-9);
+}
+
+.app-consta-menu .app-dropdown-item-button {
+  width: 100%;
+}
+
+.app-consta-menu .app-menu-item[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
+.app-consta-menu .app-menu-item[aria-disabled="true"] .app-dropdown-item-button {
+  cursor: not-allowed;
+}
+
+.app-consta-popover {
+  overflow: visible;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+.app-consta-popover .app-popover-content {
+  display: contents;
 }

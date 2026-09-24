@@ -1,4 +1,4 @@
-import { Dropdown } from "antd";
+import { ConstaMenu } from "../shared/ConstaMenu";
 import { useState } from "react";
 
 import type { RouteKey, SessionUser } from "../types";
@@ -26,9 +26,9 @@ export function ChatMobileHeader({ user, scope, total, setRoute, onLogout, onOpe
         <strong><span>{title}</span><Icon name="chevron" size={14} /></strong>
         <small>{user.organizationName || "Chatballs"} · {tn("plural.conversations", total)}</small>
       </button>
-      <Dropdown menu={{ items: menuItems }} open={open} onOpenChange={setOpen} trigger={["click"]} placement="bottomRight" overlayClassName="app-dropdown is-wide">
+      <ConstaMenu menu={{ items: menuItems }} open={open} onOpenChange={setOpen} trigger={["click"]} placement="bottomRight" overlayClassName="app-dropdown is-wide">
         <button className="chat-mobile-avatar" type="button" aria-label={t("profile.user_menu")}><Avatar user={user} /></button>
-      </Dropdown>
+      </ConstaMenu>
     </div>
   );
 }

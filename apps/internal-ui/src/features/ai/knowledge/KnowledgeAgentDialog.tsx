@@ -1,4 +1,4 @@
-import { Modal } from "antd";
+import { ConstaModal } from "../../../shared/ConstaModal";
 import { useState } from "react";
 
 import { Icon } from "../../../shared/icons";
@@ -62,7 +62,7 @@ export function KnowledgeAgentDialog({
   const applied = items.length - skips.length;
 
   return (
-    <Modal className="knowledge-agent-dialog" open width={560} title={null} footer={null} closable={false} onCancel={onCancel} destroyOnHidden>
+    <ConstaModal className="knowledge-agent-dialog" open width={560} title={null} footer={null} closable={false} onCancel={onCancel} destroyOnHidden>
       <header className="knowledge-agent-dialog-head">
         <div className="knowledge-agent-dialog-title">
           <div>
@@ -124,6 +124,6 @@ export function KnowledgeAgentDialog({
           {mode === "attach" ? t("common.attach") : t("common.detach")} {applied}
         </Button>
       </footer>
-    </Modal>
+    </ConstaModal>
   );
 }

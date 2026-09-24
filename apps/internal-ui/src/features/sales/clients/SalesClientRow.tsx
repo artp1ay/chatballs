@@ -1,4 +1,4 @@
-import { Dropdown } from "antd";
+import { ConstaMenu } from "../../../shared/ConstaMenu";
 
 import { ChannelGlyph } from "../../../shared/badges";
 import { Icon } from "../../../shared/icons";
@@ -41,9 +41,9 @@ export function SalesClientRow({ client, menu, openClient, setMenu }: { client: 
       </div>
       <div className="sales-client-open" style={{ color: client.openColor }}>{client.openDialogs}</div>
       <div className="sales-client-menu" onClick={(event) => event.stopPropagation()}>
-        <Dropdown menu={{ items: menuItems }} open={menuOpen} onOpenChange={(open) => setMenu(open ? client.cid : null)} trigger={["click"]} overlayClassName="app-dropdown is-wide">
+        <ConstaMenu menu={{ items: menuItems }} open={menuOpen} onOpenChange={(open) => setMenu(open ? client.cid : null)} trigger={["click"]} overlayClassName="app-dropdown is-wide">
           <button className="row-menu-button" type="button" aria-label={t("sales.contact_actions")}><Icon name="more" /></button>
-        </Dropdown>
+        </ConstaMenu>
       </div>
     </div>
   );

@@ -1210,7 +1210,8 @@
 }
 
 /* Меню выбора: отмеченный пункт. */
-.app-dropdown .ant-dropdown-menu-item button.is-checked {
+.app-dropdown .app-menu-item button.is-checked,
+.app-dropdown .app-dropdown-item-button.is-checked {
   color: var(--primary-text);
   background: var(--primary-bg);
   font-weight: 600;
@@ -1218,11 +1219,13 @@
 
 /* Меню полей блока «Диалог» (кадр G): 283px, пункты 33px r7, заголовок капсом,
    галочка у выбранного, подпись под списком. */
-.app-dropdown.ctx-menu .ant-dropdown-menu {
+.app-dropdown.ctx-menu .app-dropdown-menu,
+.app-dropdown.ctx-menu .ContextMenu {
   width: 283px;
 }
 
-.app-dropdown.ctx-menu .ant-dropdown-menu-item button > span:not(.ctx-avatar-small):not(.ctx-avatar-empty):not(.sales-priority-bars) {
+.app-dropdown.ctx-menu .app-menu-item button > span:not(.ctx-avatar-small):not(.ctx-avatar-empty):not(.sales-priority-bars),
+.app-dropdown.ctx-menu .app-dropdown-item-button > span:not(.ctx-avatar-small):not(.ctx-avatar-empty):not(.sales-priority-bars) {
   flex: 1;
   min-width: 0;
   overflow: hidden;
@@ -1230,11 +1233,12 @@
   white-space: nowrap;
 }
 
-.app-dropdown.ctx-menu .ant-dropdown-menu-item button > svg {
+.app-dropdown.ctx-menu .app-menu-item button > svg,
+.app-dropdown.ctx-menu .app-dropdown-item-button > svg {
   flex: none;
 }
 
-.app-dropdown.ctx-menu .ant-dropdown-menu-item-group-title {
+.app-dropdown.ctx-menu .app-menu-group {
   padding: 6px 10px 4px;
   color: var(--n-5);
   font-size: 11px;
@@ -1244,7 +1248,7 @@
   text-transform: uppercase;
 }
 
-.app-dropdown.ctx-menu .ant-dropdown-menu-item-group-list {
+.app-dropdown.ctx-menu .app-menu-group-list {
   margin: 0;
 }
 
@@ -1253,7 +1257,7 @@
   border-top: 1px solid var(--n-9);
 }
 
-.app-dropdown.ctx-menu .ctx-menu-note .ant-dropdown-menu-item-group-title {
+.app-dropdown.ctx-menu .ctx-menu-note .app-menu-group {
   padding: 8px 10px 6px;
   color: var(--n-4);
   font-size: 11.5px;
@@ -1401,11 +1405,13 @@
   height: 7px;
 }
 
-.app-dropdown.ctx-menu .ant-dropdown-menu-item button.assignee-option {
+.app-dropdown.ctx-menu .app-menu-item button.assignee-option,
+.app-dropdown.ctx-menu .app-dropdown-item-button.assignee-option {
   align-items: center;
 }
 
-.app-dropdown.ctx-menu .ant-dropdown-menu-item button.assignee-option > .assignee-who {
+.app-dropdown.ctx-menu .app-menu-item button.assignee-option > .assignee-who,
+.app-dropdown.ctx-menu .app-dropdown-item-button.assignee-option > .assignee-who {
   flex: 1;
   min-width: 0;
   display: flex;
@@ -1431,7 +1437,8 @@
   color: var(--success-text);
 }
 
-.app-dropdown.ctx-menu .ant-dropdown-menu-item button.assignee-option > .assignee-load {
+.app-dropdown.ctx-menu .app-menu-item button.assignee-option > .assignee-load,
+.app-dropdown.ctx-menu .app-dropdown-item-button.assignee-option > .assignee-load {
   flex: none;
   margin-left: 6px;
   font-size: 11px;

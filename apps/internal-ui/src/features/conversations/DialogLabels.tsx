@@ -1,4 +1,4 @@
-import { Dropdown } from "antd";
+import { ConstaMenu } from "../../shared/ConstaMenu";
 import { useEffect, useState } from "react";
 import { t } from "../../i18n";
 import { Icon } from "../../shared/icons";
@@ -52,7 +52,7 @@ export function DialogLabels({ detail, busy, setBusy, setErrorText, applyConvers
     <>
       <label className="ctx-label">{t("conversations.labels")}</label>
       <div className="ctx-labels">
-        <Dropdown
+        <ConstaMenu
           disabled={busy}
           trigger={["click"]}
           overlayClassName="app-dropdown is-wide ctx-labels-menu"
@@ -88,7 +88,7 @@ export function DialogLabels({ detail, busy, setBusy, setErrorText, applyConvers
           }}
         >
           <button type="button" className="ctx-add-label"><Icon name="plus" size={13} />{t("conversations.add")}</button>
-        </Dropdown>
+        </ConstaMenu>
         {detail.labels.map((label) => (
           <b className="ctx-label-chip" key={label.id}>
             <i style={{ background: label.color || "var(--n-5)" }} />

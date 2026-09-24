@@ -1,4 +1,4 @@
-import { Modal } from "antd";
+import { ConstaModal } from "../../shared/ConstaModal";
 import { useEffect, useMemo, useState } from "react";
 
 import { LoadingState } from "../../shared/ui";
@@ -76,7 +76,7 @@ export function AgentKnowledgeDialog({ card, onClose, onSave }: {
   }
 
   return (
-    <Modal className="agent-knowledge-modal" open width={620} title={t("ai.select_knowledge")} onCancel={onClose} footer={null} destroyOnClose>
+    <ConstaModal className="agent-knowledge-modal" open width={620} title={t("ai.select_knowledge")} onCancel={onClose} footer={null} destroyOnClose>
       <p className="agent-create-lead">{t("ai.agent_answers_only_from_selected")}</p>
       <SearchInput className="agent-knowledge-search" placeholder={t("ai.search_by_title")} value={search} onChange={setSearch} />
       {groups === null && !failed && <LoadingState />}
@@ -112,6 +112,6 @@ export function AgentKnowledgeDialog({ card, onClose, onSave }: {
           {saving ? t("ai.saving") : t("common.save")}
         </Button>
       </div>
-    </Modal>
+    </ConstaModal>
   );
 }

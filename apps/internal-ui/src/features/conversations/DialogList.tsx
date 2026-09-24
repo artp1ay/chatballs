@@ -1,4 +1,4 @@
-import { Dropdown } from "antd";
+import { ConstaMenu } from "../../shared/ConstaMenu";
 import { useCallback, type CSSProperties, type ReactNode, type UIEvent } from "react";
 
 import { modeDots } from "./data";
@@ -63,7 +63,7 @@ export function DialogList({ title = t("common.conversations"), searchPlaceholde
             ? <ScopeSwitcher scope={scope} counters={counters} setScope={setScope} fallbackTitle={title} total={total} viewerId={viewerId} />
             : <h2 className="sales-dialog-list-title">{scope.kind === "all" ? title : scopeLabel(scope)}<small>{total}</small></h2>}
           <span className="sales-dialog-list-tools">
-            <Dropdown
+            <ConstaMenu
               trigger={["click"]}
               placement="bottomRight"
               overlayClassName="app-dropdown"
@@ -75,7 +75,7 @@ export function DialogList({ title = t("common.conversations"), searchPlaceholde
               }}
             >
               <button type="button" aria-label={t("conversations.sorting")} title={sort === "activity" ? t("conversations.sorting_by_last_message") : t("conversations.sorting_by_waiting_time")}><Icon name="sort" size={15} /></button>
-            </Dropdown>
+            </ConstaMenu>
             {onCollapse && <button type="button" aria-label={t("conversations.hide_list")} title={t("conversations.hide_list")} onClick={onCollapse}><Icon name="collapseLeft" size={15} /></button>}
           </span>
         </div>
@@ -209,12 +209,12 @@ function ScopeSwitcher({ scope, counters, setScope, fallbackTitle, total, viewer
       : []),
   ];
   return (
-    <Dropdown menu={{ items }} trigger={["click"]} placement="bottomLeft" overlayClassName="app-dropdown scope-dropdown">
+    <ConstaMenu menu={{ items }} trigger={["click"]} placement="bottomLeft" overlayClassName="app-dropdown scope-dropdown">
       <button className="sales-scope-switcher" type="button">
         <h2 className="sales-dialog-list-title">{heading}<small>{total}</small></h2>
         <Icon name="chevron" size={14} />
       </button>
-    </Dropdown>
+    </ConstaMenu>
   );
 }
 

@@ -1,4 +1,4 @@
-import { Modal } from "antd";
+import { ConstaModal } from "../ConstaModal";
 import { useMemo, useState } from "react";
 
 import { DecisionDialog } from "../DecisionDialog";
@@ -95,7 +95,7 @@ export function CategoryManagementDialog({
 
   return (
     <>
-      <Modal
+      <ConstaModal
         className="content-category-modal"
         destroyOnHidden
         footer={<div className="content-category-modal-footer"><Button variant="secondary" icon="plus" disabled={busy} onClick={() => { setEditingId(null); setCreateParentId(null); setDraftName(""); }}>{createLabel}</Button><Button variant="primary" disabled={busy} onClick={onClose}>{t("common.done")}</Button></div>}
@@ -127,7 +127,7 @@ export function CategoryManagementDialog({
           </div>}
           {error && <div className="content-category-error">{error}</div>}
         </div>
-      </Modal>
+      </ConstaModal>
       <DecisionDialog
         open={Boolean(deleting)} onClose={() => setDeleting(null)} tone="danger" icon="trash"
         title={t("shared.delete_category")} description={deleteDescription}

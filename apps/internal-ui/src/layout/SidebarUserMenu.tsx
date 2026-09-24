@@ -1,4 +1,4 @@
-import { Dropdown } from "antd";
+import { ConstaMenu } from "../shared/ConstaMenu";
 import { useState } from "react";
 
 import type { RouteKey, SessionUser } from "../types";
@@ -19,12 +19,12 @@ export function SidebarUserMenu({ user, route, setRoute, onLogout, unreadCount =
     { key: "logout", label: <button type="button" className="danger" onClick={onLogout}><Icon name="logout" size={15} />{t("common.sign_out")}</button> },
   ];
   return (
-    <Dropdown menu={{ items: menuItems }} open={open} onOpenChange={setOpen} trigger={["click"]} placement="topLeft" overlayClassName="app-dropdown is-wide">
+    <ConstaMenu menu={{ items: menuItems }} open={open} onOpenChange={setOpen} trigger={["click"]} placement="topLeft" overlayClassName="app-dropdown is-wide">
       <button className={`profile-link ${active ? "is-active" : ""}`} type="button" aria-label={t("profile.user_menu")}>
         <span className="profile-avatar"><Avatar user={user} /><i /></span>
         <span><strong>{user.fullName || user.email}</strong><small>{user.email}</small></span>
         <span className="profile-more">{unreadCount > 0 && <i className="profile-unread" />}<Icon name="more" size={16} /></span>
       </button>
-    </Dropdown>
+    </ConstaMenu>
   );
 }

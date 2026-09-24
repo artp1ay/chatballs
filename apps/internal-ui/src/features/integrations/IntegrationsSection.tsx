@@ -1,4 +1,4 @@
-import { Modal } from "antd";
+import { ConstaModal } from "../../shared/ConstaModal";
 import { useState } from "react";
 
 import { api } from "../../api/client";
@@ -80,7 +80,7 @@ export function IntegrationsSection({ kind, items, reload, onEdit }: {
         <p className="settings-section-note">{t("settings.web_widget_embed_snippet_copied")}</p>
       )}
       {deleting && (
-        <Modal open title={t("settings.delete_integration")} onCancel={() => setDeleting(null)} footer={null} destroyOnClose>
+        <ConstaModal open title={t("settings.delete_integration")} onCancel={() => setDeleting(null)} footer={null} destroyOnClose>
           <div className="integration-form">
             <p>{t("settings.will_be_deleted_irreversible", { name: deleting.name })}</p>
             {deletingError && <div className="integration-form-error">{deletingError}</div>}
@@ -89,7 +89,7 @@ export function IntegrationsSection({ kind, items, reload, onEdit }: {
               <Button variant="danger-outline" onClick={() => void confirmDelete()}>{t("common.delete")}</Button>
             </div>
           </div>
-        </Modal>
+        </ConstaModal>
       )}
     </div>
   );

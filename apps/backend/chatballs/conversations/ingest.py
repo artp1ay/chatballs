@@ -139,7 +139,8 @@ def ingest_inbound(integration, inbound: InboundMessage) -> None:
         refresh_contact_avatar(integration, inbound, contact)
 
         conversation = (
-            Conversation.objects.filter(channel=channel, contact=contact, lifecycle=LifecycleState.OPEN)
+            Conversation.objects.select_for_update()
+            .filter(channel=channel, contact=contact, lifecycle=LifecycleState.OPEN)
             .order_by("-last_activity_at")
             .first()
         )

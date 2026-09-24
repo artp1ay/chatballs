@@ -1,4 +1,4 @@
-import { Modal } from "antd";
+import { ConstaModal } from "../../shared/ConstaModal";
 import { useState } from "react";
 
 import { ApiError } from "../../api/client";
@@ -73,7 +73,7 @@ export function PortalCreateDialog({
   }
 
   return (
-    <Modal open={open} title={t("portals.new_support_portal")} footer={null} onCancel={onClose}>
+    <ConstaModal open={open} title={t("portals.new_support_portal")} footer={null} onCancel={onClose}>
       <div className="portal-dialog-form">
         <p>{t("portals.portal_public_help_centre_with")}</p>
         <FormField error={fieldErrors.name} label={t("portals.portal_name")} value={name} onChange={setName} placeholder={t("portals.example_help_centre")} wide />
@@ -113,6 +113,6 @@ export function PortalCreateDialog({
           </Button>
         </div>
       </div>
-    </Modal>
+    </ConstaModal>
   );
 }

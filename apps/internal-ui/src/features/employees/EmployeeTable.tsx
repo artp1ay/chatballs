@@ -1,4 +1,4 @@
-import { Dropdown } from "antd";
+import { ConstaMenu } from "../../shared/ConstaMenu";
 
 import type { Employee, EmployeeGroup, EmployeeInvitation } from "../../types";
 import { Icon } from "../../shared/icons";
@@ -142,11 +142,11 @@ function EmployeeRow({ employee, groups, menuOpen, onBlock, onResetPassword, onT
       <span className={`employees-access ${employee.role === "EMPLOYEE" ? "is-limited" : ""}`}>{roleAccessLabel(employee)}</span>
       <b className="employees-badge has-dot" style={{ background: status.bg, color: status.color }}><i />{status.text}</b>
       <span className="employees-login">{formatLastLogin(employee.lastLogin)}</span>
-      <Dropdown menu={{ items: menuItems }} open={menuOpen} onOpenChange={(next) => setMenuId(next ? employee.id : null)} trigger={["click"]} overlayClassName="app-dropdown is-employee-menu">
+      <ConstaMenu menu={{ items: menuItems }} open={menuOpen} onOpenChange={(next) => setMenuId(next ? employee.id : null)} trigger={["click"]} overlayClassName="app-dropdown is-employee-menu">
         <button className={`employees-row-menu ${menuOpen ? "is-open" : ""}`} type="button" aria-label={t("common.actions_for", { name: employee.fullName || employee.email })} title={t("common.actions")} onClick={(event) => event.stopPropagation()}>
           <Icon name="more" size={16} />
         </button>
-      </Dropdown>
+      </ConstaMenu>
     </div>
   );
 }

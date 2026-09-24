@@ -85,7 +85,8 @@ class RoutingContext:
         intervals = schedule.get(DAY_KEYS[local_now.weekday()])
         current_minutes = local_now.hour * 60 + local_now.minute
         if isinstance(intervals, list) and any(
-            _contains(interval, current_minutes) for interval in intervals
+            _contains(interval, current_minutes) or _contains_overnight_start(interval, current_minutes)
+            for interval in intervals
         ):
             return True
         previous_key = DAY_KEYS[(local_now.weekday() - 1) % 7]
@@ -104,6 +105,16 @@ def _contains(interval: object, current_minutes: int) -> bool:
     if start is None or end is None or start >= end:
         return False
     return start <= current_minutes < end
+
+
+def _contains_overnight_start(interval: object, current_minutes: int) -> bool:
+    if not isinstance(interval, dict):
+        return False
+    start = _minutes(interval.get("start"))
+    end = _minutes(interval.get("end"))
+    if start is None or end is None or start <= end:
+        return False
+    return current_minutes >= start
 
 
 def _contains_overnight(interval: object, current_minutes: int) -> bool:

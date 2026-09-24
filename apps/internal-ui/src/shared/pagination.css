@@ -99,6 +99,7 @@
   color: var(--n-5);
 }
 
-.app-dropdown.is-pager-size .ant-dropdown-menu {
+.app-dropdown.is-pager-size .app-dropdown-menu,
+.app-dropdown.is-pager-size .ContextMenu {
   width: 108px;
 }

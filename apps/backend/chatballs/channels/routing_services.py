@@ -61,7 +61,7 @@ def get_business_hours(
 def save_business_hours(
     *, context: TenantContext, channel: Channel, data: dict[str, Any]
 ) -> ChannelBusinessHours:
-    require_channel_manage(context)
+    require_channel_manage(context, channel=channel)
     timezone_name = _required_string(data, "timezone", "timezone")
     weekly_schedule = deepcopy(data.get("weekly_schedule", data.get("weeklySchedule", {})))
     holidays = deepcopy(data.get("holidays", []))
@@ -105,7 +105,7 @@ def get_rule(*, channel: Channel, rule_id: int) -> ChannelRoutingRule:
 def create_rule(
     *, context: TenantContext, channel: Channel, data: dict[str, Any]
 ) -> ChannelRoutingRule:
-    require_channel_manage(context)
+    require_channel_manage(context, channel=channel)
     values = _rule_values(
         data,
         current=None,
@@ -125,7 +125,7 @@ def update_rule(
     rule_id: int,
     data: dict[str, Any],
 ) -> ChannelRoutingRule:
-    require_channel_manage(context)
+    require_channel_manage(context, channel=channel)
     try:
         rule = (
             ChannelRoutingRule.objects.select_for_update()
@@ -154,7 +154,7 @@ def update_rule(
 def delete_rule(
     *, context: TenantContext, channel: Channel, rule_id: int
 ) -> None:
-    require_channel_manage(context)
+    require_channel_manage(context, channel=channel)
     try:
         rule = ChannelRoutingRule.objects.get(
             id=rule_id,
@@ -172,7 +172,7 @@ def reorder_rules(
 ) -> int:
     """Назначает приоритеты 10, 20, 30 в порядке drag-and-drop."""
 
-    require_channel_manage(context)
+    require_channel_manage(context, channel=channel)
     if (
         not isinstance(rule_ids, list)
         or not rule_ids

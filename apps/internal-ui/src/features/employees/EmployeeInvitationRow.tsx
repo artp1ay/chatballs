@@ -1,4 +1,4 @@
-import { Dropdown } from "antd";
+import { ConstaMenu } from "../../shared/ConstaMenu";
 import { useState } from "react";
 
 import type { EmployeeGroup, EmployeeInvitation } from "../../types";
@@ -54,11 +54,11 @@ export function EmployeeInvitationRow({ invitation, groups, canManage, onResend,
       <span className={`employees-access ${invitation.role === "EMPLOYEE" ? "is-limited" : ""}`}>{roleAccessLabel(invitation)}</span>
       <b className="employees-badge has-dot" style={{ background: status.bg, color: status.color }}><i />{status.text}</b>
       <span className="employees-login">{t("admin.invitation_valid_until", { date: formatDate(invitation.expiresAt) })}</span>
-      <Dropdown menu={{ items: menuItems }} open={menuOpen} onOpenChange={setMenuOpen} trigger={["click"]} overlayClassName="app-dropdown is-employee-menu">
+      <ConstaMenu menu={{ items: menuItems }} open={menuOpen} onOpenChange={setMenuOpen} trigger={["click"]} overlayClassName="app-dropdown is-employee-menu">
         <button className={`employees-row-menu ${menuOpen ? "is-open" : ""}`} type="button" aria-label={t("common.actions_for", { name: invitation.fullName || invitation.email })} title={t("common.actions")} onClick={(event) => event.stopPropagation()}>
           <Icon name="more" size={16} />
         </button>
-      </Dropdown>
+      </ConstaMenu>
     </div>
   );
 }

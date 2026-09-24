@@ -1,9 +1,9 @@
-// Видеозвонок (оператор): antd Modal + CallView. Путь видео не меняется — вынесен
+// Видеозвонок (оператор): Consta UI Modal + CallView. Путь видео не меняется — вынесен
 // из CallOverlay при добавлении аудиозвонка, чтобы CallOverlay остался тонким
 // диспетчером по call.kind (NO GOD / separation of concerns).
 
 import { CallView, type CallViewMode, type CallViewStatus, isTerminalCallStatus, useCallRtcSession, useLoopingAudio } from "@chatballs/ui";
-import { Modal } from "antd";
+import { ConstaModal } from "../../shared/ConstaModal";
 import { useEffect, useState } from "react";
 
 import { providerMeta } from "../../shared/providers";
@@ -92,7 +92,7 @@ export function VideoCallOverlay(props: Props) {
   };
 
   return (
-    <Modal open={props.open} onCancel={() => void endAndClose()} footer={null} closable={false} width={428} className="call-modal" destroyOnHidden>
+    <ConstaModal open={props.open} onCancel={() => void endAndClose()} footer={null} closable={false} width={428} className="call-modal" destroyOnHidden>
       <CallView
         mode={mode}
         peerName={props.dialog.name}
@@ -117,7 +117,7 @@ export function VideoCallOverlay(props: Props) {
         onEnd={() => void finish()}
         onClose={() => void endAndClose()}
       />
-    </Modal>
+    </ConstaModal>
   );
 }
 

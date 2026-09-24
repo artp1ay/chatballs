@@ -1,4 +1,5 @@
-import { Dropdown, Modal } from "antd";
+import { ConstaMenu } from "../../shared/ConstaMenu";
+import { ConstaModal } from "../../shared/ConstaModal";
 import { useCallback, useState } from "react";
 
 import { ChannelGlyph } from "../../shared/badges";
@@ -45,7 +46,7 @@ function CreateAgentModal({ groups, onClose, onCreated }: { groups: EmployeeGrou
   }
 
   return (
-    <Modal className="agent-create-modal" open width={440} title={t("profile.create_agent")} onCancel={onClose} footer={null} destroyOnClose>
+    <ConstaModal className="agent-create-modal" open width={440} title={t("profile.create_agent")} onCancel={onClose} footer={null} destroyOnClose>
       <p className="agent-create-lead">{t("ai.one_step_instructions_model_knowledge")}</p>
       <div className="agent-create-fields">
         <FormField label={t("common.title")} value={name} onChange={setName} placeholder={t("ai.example_front_desk")} />
@@ -63,7 +64,7 @@ function CreateAgentModal({ groups, onClose, onCreated }: { groups: EmployeeGrou
           {submitting ? t("ai.creating") : t("ai.create_2")}
         </Button>
       </div>
-    </Modal>
+    </ConstaModal>
   );
 }
 
@@ -118,9 +119,9 @@ function AgentRow({ card, openAgent, onToggleAi }: { card: AgentCard; openAgent:
           })}
       </div>
       <div className="agents-row-open" style={{ color: open ? "var(--warning-text)" : "var(--n-5)" }}>{open || "—"}</div>
-      <Dropdown menu={{ items: menuItems }} open={menuOpen} onOpenChange={setMenuOpen} trigger={["click"]} overlayClassName="app-dropdown">
+      <ConstaMenu menu={{ items: menuItems }} open={menuOpen} onOpenChange={setMenuOpen} trigger={["click"]} overlayClassName="app-dropdown">
         <button className="agents-row-menu" type="button" aria-label={t("ai.agent_actions")} title={t("common.actions")} onClick={(event) => event.stopPropagation()}><Icon name="more" size={16} strokeWidth={2} /></button>
-      </Dropdown>
+      </ConstaMenu>
     </div>
   );
 }

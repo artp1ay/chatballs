@@ -187,6 +187,24 @@ class RoutingRuleUnitTests(SimpleTestCase):
         )
         self.assertTrue(is_working_hours(context))
 
+    def test_overnight_interval_is_working_before_midnight(self) -> None:
+        business_hours = SimpleNamespace(
+            timezone="UTC",
+            weekly_schedule={"fri": [{"start": "22:00", "end": "02:00"}]},
+            holidays=[],
+        )
+        context = RoutingContext(
+            channel=self.channel,
+            contact=self.contact,
+            conversation=None,
+            inbound_message_text="",
+            is_new_conversation=True,
+            current_time=datetime(2026, 5, 1, 23, 0, tzinfo=ZoneInfo("UTC")),
+            has_active_ai_agent=True,
+            business_hours=business_hours,
+        )
+        self.assertTrue(is_working_hours(context))
+
     def test_business_hours_validation_rejects_overlap(self) -> None:
         with self.assertRaises(ValidationError):
             validate_business_hours(
@@ -236,6 +254,34 @@ class RoutingRuleUnitTests(SimpleTestCase):
 
         self.assertEqual(decision.target, RuleActionTarget.ROUTE_TO_AI)
         self.assertEqual(decision.rule_id, 10)
+
+    def test_assign_group_clears_previous_assignment(self) -> None:
+        from types import SimpleNamespace as NS
+
+        from chatballs.channels.models import RuleActionTarget
+        from chatballs.channels.rules.actions import apply_routing_decision
+        from chatballs.channels.rules.types import RouteDecision
+        from chatballs.conversations.models import ControlMode, ExpectedResponder
+
+        conversation = NS(
+            control_mode=ControlMode.PAUSED,
+            lifecycle="OPEN",
+            waiting_since=None,
+            assigned_operator=object(),
+            assigned_at=object(),
+            group_id=1,
+        )
+        channel = NS(group_id=1, ai_agent=NS(is_active=True))
+        fields = apply_routing_decision(
+            conversation,
+            RouteDecision(RuleActionTarget.ASSIGN_GROUP, target_group_id=2),
+            channel=channel,
+        )
+        self.assertIn("assigned_operator", fields)
+        self.assertIsNone(conversation.assigned_operator)
+        self.assertIsNone(conversation.assigned_at)
+        self.assertEqual(conversation.group_id, 2)
+        self.assertEqual(conversation.expected_responder, ExpectedResponder.OPERATOR)
 
     def test_ai_rule_without_agent_falls_back_to_human(self) -> None:
         rule = SimpleNamespace(

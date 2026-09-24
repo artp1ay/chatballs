@@ -1,4 +1,4 @@
-import { Dropdown } from "antd";
+import { ConstaMenu } from "../../shared/ConstaMenu";
 import { useState } from "react";
 
 import { DecisionDialog } from "../../shared/DecisionDialog";
@@ -77,9 +77,9 @@ export function ConversationActions({
 
   return (
     <>
-      <Dropdown menu={{ items }} trigger={["click"]} placement="bottomRight" overlayClassName="app-dropdown">
+      <ConstaMenu menu={{ items }} trigger={["click"]} placement="bottomRight" overlayClassName="app-dropdown">
         <button className="sales-more-button row-menu-button" type="button" aria-label={t("conversations.conversation_actions")}><Icon name="more" size={18} /></button>
-      </Dropdown>
+      </ConstaMenu>
       <DecisionDialog
         open={confirmSpam}
         onClose={() => !busy && setConfirmSpam(false)}

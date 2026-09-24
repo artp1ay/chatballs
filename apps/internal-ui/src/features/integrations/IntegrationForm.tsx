@@ -1,4 +1,4 @@
-import { Modal } from "antd";
+import { ConstaModal } from "../../shared/ConstaModal";
 import { useEffect, useState } from "react";
 
 import { api } from "../../api/client";
@@ -118,7 +118,7 @@ export function IntegrationForm({ initial, kind, onClose, onSaved }: { initial: 
   }
 
   return (
-    <Modal open title={isEdit ? t("settings.edit_integration") : t("settings.new_integration")} onCancel={onClose} footer={null} destroyOnClose>
+    <ConstaModal open title={isEdit ? t("settings.edit_integration") : t("settings.new_integration")} onCancel={onClose} footer={null} destroyOnClose>
       <div className="integration-form">
         {isEdit ? (
           <FormField label={t("settings.type")} value={meta.label} />
@@ -200,6 +200,6 @@ export function IntegrationForm({ initial, kind, onClose, onSaved }: { initial: 
           <Button variant="primary" disabled={!ready || submitting} onClick={submit}>{submitting ? t("ai.saving") : t("common.save")}</Button>
         </div>
       </div>
-    </Modal>
+    </ConstaModal>
   );
 }

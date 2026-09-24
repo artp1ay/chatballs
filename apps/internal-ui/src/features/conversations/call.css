@@ -1,7 +1,7 @@
 /* Контейнер модалки — та же карточка звонка, поэтому радиус берётся из того же
    токена, что и у `.hub-call-view`: иначе снаружи виден радиус модалки, а не
    карточки, и перевод call-view.css на токены оператору не заметен. */
-.call-modal .ant-modal-content {
+.call-modal .app-modal-card {
   padding: 0;
   border-radius: var(--radius-4xl);
   overflow: hidden;
@@ -15,7 +15,7 @@
 
 /* Аудиозвонок: сцена тёмная и портретная (9:16). Modal-контейнер должен
    сливаться со сценой — никаких белых полей/паддингов/рамок вокруг карточки. */
-.audio-call-modal .ant-modal-content {
+.audio-call-modal .app-modal-card {
   padding: 0;
   background: var(--n-1);
   border-radius: var(--radius-4xl);
@@ -28,7 +28,7 @@
   aspect-ratio: 9 / 16;
   /* Сцена внутри модалки всегда живёт по пропорции, а не по высоте вьюпорта:
      на узком окне оператора мобильная ветка audio-call.css иначе растянула бы
-     карточку на весь экран прямо внутри antd Modal. */
+     карточку на весь экран прямо внутри модального окна. */
   height: auto;
   border-radius: 0;
   box-shadow: none;

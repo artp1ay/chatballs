@@ -79,7 +79,7 @@ class Turn:
     # Ход прерван на подготовке, и клиенту есть что сказать: текст уходит ему
     # уже вне транзакции, как и обычный ответ.
     stopped: bool = False
-    outgoing: str = ""
+    outgoing: str | None = None
 
 
 def request_ai_turn(
@@ -159,21 +159,18 @@ def _begin(*, message_id: int, user_id: str, is_new: bool, context: TenantContex
     после сбоя, диалог мог уйти оператору, а ход мог пролежать в очереди
     дольше, чем ответ имеет смысл.
     """
-    message = (
-        Message.objects.select_related(
-            "conversation__channel__ai_agent",
-            "conversation__channel__organization",
-            "conversation__contact",
-            "conversation__connection",
-        )
-        .filter(id=message_id)
-        .first()
+    # Сначала блокируем диалог, затем перечитываем входящее сообщение. Такой
+    # порядок совпадает с операторским перехватом и не даёт устаревшему снимку
+    # вернуть ход в RUNNING уже после отмены.
+    locked = ai_turn_result.lock_turn_for_start(
+        message_id=message_id,
+        context=context,
     )
-    if message is None:
+    if locked is None:
         return None
+    conversation, message = locked
     if message.ai_turn_state not in (AiTurnState.PENDING, AiTurnState.RUNNING):
         return None
-    conversation = message.conversation
     channel = conversation.channel
     agent = getattr(channel, "ai_agent", None)
     if conversation.control_mode != ControlMode.AI or agent is None or not agent.is_active:
@@ -261,7 +258,8 @@ def run_requested_turn(payload: dict, context: TenantContext) -> None:
     if turn is None:
         return
     if turn.stopped:
-        _deliver(turn, turn.outgoing)
+        if turn.outgoing is not None:
+            _deliver(turn, turn.outgoing)
         return
 
     if turn.transcription_job is not None:
@@ -272,6 +270,7 @@ def run_requested_turn(payload: dict, context: TenantContext) -> None:
 
     embedding = run_query_embedding(turn.embedding_job)
     failure = None
+    plan = None
     with tenant_atomic(context):
         try:
             plan = plan_chat(
@@ -287,6 +286,9 @@ def run_requested_turn(payload: dict, context: TenantContext) -> None:
     if failure is not None:
         _deliver(turn, failure)
         return
+    if plan is None:
+        # Отказ мог устареть после перехвата: доставка и запись отменены.
+        return
 
     answer = run_turn_chat(plan)
     with tenant_atomic(context):
@@ -299,4 +301,5 @@ def run_requested_turn(payload: dict, context: TenantContext) -> None:
             outgoing = ai_turn_result.store_answer(
                 turn=turn, context=context, text=answer.result.text
             )
-    _deliver(turn, outgoing)
+    if outgoing is not None:
+        _deliver(turn, outgoing)

@@ -410,19 +410,22 @@ img.sales-dialog-avatar {
 
 /* Поповер охвата (A1): 250px, отступ 6, тень 0 8 24; секции «Группы · Агенты ·
    Ответственный» с подзаголовками 11/600, пункты 32 r7. */
-.app-dropdown.scope-dropdown .ant-dropdown-menu {
+.app-dropdown.scope-dropdown .app-dropdown-menu,
+.app-dropdown.scope-dropdown .ContextMenu {
   width: 250px;
   padding: 6px;
   border-color: var(--n-8);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
 }
 
-.app-dropdown.scope-dropdown .ant-dropdown-menu-item button {
+.app-dropdown.scope-dropdown .app-menu-item button,
+.app-dropdown.scope-dropdown .app-dropdown-item-button {
   min-height: 32px;
   padding: 0 10px;
 }
 
-.app-dropdown.scope-dropdown .ant-dropdown-menu-item button > span:not(.scope-agent):not(.scope-avatar) {
+.app-dropdown.scope-dropdown .app-menu-item button > span:not(.scope-agent):not(.scope-avatar),
+.app-dropdown.scope-dropdown .app-dropdown-item-button > span:not(.scope-agent):not(.scope-avatar) {
   flex: 1;
   min-width: 0;
   overflow: hidden;
@@ -430,7 +433,8 @@ img.sales-dialog-avatar {
   white-space: nowrap;
 }
 
-.app-dropdown.scope-dropdown .ant-dropdown-menu-item button small {
+.app-dropdown.scope-dropdown .app-menu-item button small,
+.app-dropdown.scope-dropdown .app-dropdown-item-button small {
   display: inline;
   flex: none;
   margin: 0 0 0 auto;
@@ -440,11 +444,12 @@ img.sales-dialog-avatar {
   line-height: 15px;
 }
 
-.app-dropdown.scope-dropdown .ant-dropdown-menu-item button.is-checked small {
+.app-dropdown.scope-dropdown .app-menu-item button.is-checked small,
+.app-dropdown.scope-dropdown .app-dropdown-item-button.is-checked small {
   color: var(--primary-text);
 }
 
-.app-dropdown.scope-dropdown .ant-dropdown-menu-item-group-title {
+.app-dropdown.scope-dropdown .app-menu-group {
   padding: 8px 10px 4px;
   color: var(--n-4);
   font-size: 11px;
@@ -452,7 +457,7 @@ img.sales-dialog-avatar {
   line-height: 15px;
 }
 
-.app-dropdown.scope-dropdown .ant-dropdown-menu-item-group-list {
+.app-dropdown.scope-dropdown .app-menu-group-list {
   margin: 0;
 }
 

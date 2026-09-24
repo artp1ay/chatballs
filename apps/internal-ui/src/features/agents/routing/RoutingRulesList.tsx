@@ -9,7 +9,7 @@ import {
   formatConditionsSummary,
   triggerEventTitle,
 } from "./model";
-import { deleteRoutingRule, updateRoutingRule } from "./api";
+import { deleteRoutingRule, reorderRoutingRules, updateRoutingRule } from "./api";
 import type { ChannelRoutingRule } from "./types";
 import { RoutingRuleModal } from "./RoutingRuleModal";
 
@@ -62,25 +62,16 @@ export function RoutingRulesList({
     if (targetIndex < 0 || targetIndex >= rules.length) return;
 
     const currentRule = rules[index];
-    const targetRule = rules[targetIndex];
-
-    const newPriorityCurrent = targetRule.priority;
-    const newPriorityTarget = currentRule.priority === targetRule.priority
-      ? (direction === "up" ? currentRule.priority + 1 : currentRule.priority - 1)
-      : currentRule.priority;
+    const nextRules = [...rules];
+    [nextRules[index], nextRules[targetIndex]] = [nextRules[targetIndex], nextRules[index]];
 
     setBusyId(currentRule.id);
     try {
-      const [updatedCurrent, updatedTarget] = await Promise.all([
-        updateRoutingRule(channelId, currentRule.id, { priority: newPriorityCurrent }),
-        updateRoutingRule(channelId, targetRule.id, { priority: newPriorityTarget }),
-      ]);
-
-      const nextRules = [...rules];
-      nextRules[index] = updatedCurrent;
-      nextRules[targetIndex] = updatedTarget;
-      nextRules.sort((a, b) => a.priority - b.priority);
-      onRulesUpdated(nextRules);
+      await reorderRoutingRules(channelId, nextRules.map((rule) => ({ id: rule.id })));
+      onRulesUpdated(nextRules.map((rule, ruleIndex) => ({
+        ...rule,
+        priority: (ruleIndex + 1) * 10,
+      })));
     } finally {
       setBusyId(null);
     }
@@ -103,7 +94,7 @@ export function RoutingRulesList({
           <p>{t("routing.rules_list_subtitle")}</p>
         </div>
         {canManage && (
-          <Button variant="secondary" icon="plus" onClick={() => setIsCreating(true)}>
+          <Button variant="secondary" icon="plus" onClick={() => setIsCreating(true)} data-testid="add-routing-rule-button">
             {t("routing.add_rule")}
           </Button>
         )}
@@ -117,9 +108,10 @@ export function RoutingRulesList({
       ) : (
         <div className="routing-rules-list">
           {rules.map((rule, index) => {
-            const groupName =
-              rule.target_group &&
-              groups.find((g) => g.id === rule.target_group)?.name;
+            const targetGroupId = rule.target_group_id ?? rule.target_group;
+            const groupName = targetGroupId
+              ? groups.find((group) => group.id === targetGroupId)?.name
+              : undefined;
 
             return (
               <div

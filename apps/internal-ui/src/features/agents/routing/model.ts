@@ -65,6 +65,8 @@ export function conditionFieldTitle(field: string): string {
   switch (field) {
     case "schedule.is_working_hours":
       return t("routing.field_working_hours");
+    case "channel.routing_mode":
+      return t("routing.field_routing_mode");
     case "contact.labels":
       return t("routing.field_contact_labels");
     case "contact.has_phone":
@@ -88,8 +90,12 @@ export function conditionOperatorTitle(op: string): string {
       return t("routing.op_not_equals");
     case "contains":
       return t("routing.op_contains");
+    case "not_contains":
+      return t("routing.op_not_contains");
     case "contains_any":
       return t("routing.op_contains_any");
+    case "contains_all":
+      return t("routing.op_contains_all");
     case "regex_match":
       return t("routing.op_regex_match");
     default:
@@ -97,37 +103,103 @@ export function conditionOperatorTitle(op: string): string {
   }
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+export function isRuleCondition(value: RuleConditionTree): value is RuleCondition {
+  return isRecord(value) && "field" in value && "op" in value && "value" in value;
+}
+
+export function isEmptyConditionTree(value: RuleConditionTree): boolean {
+  return isRecord(value) && Object.keys(value).length === 0;
+}
+
+function formatConditionValue(value: unknown): string {
+  if (typeof value === "boolean") {
+    return value ? t("common.yes") : t("common.no");
+  }
+  if (Array.isArray(value)) {
+    return value.map((item) => formatConditionValue(item)).join(", ");
+  }
+  if (value === null || value === undefined) {
+    return "—";
+  }
+  if (isRecord(value)) {
+    try {
+      return JSON.stringify(value);
+    } catch {
+      return "—";
+    }
+  }
+  return String(value);
+}
+
 export function formatCondition(condition: RuleCondition): string {
   const fieldName = conditionFieldTitle(condition.field);
   const opName = conditionOperatorTitle(condition.op);
-  let valueStr = String(condition.value);
+  const value = condition.field === "channel.routing_mode" && typeof condition.value === "string"
+    ? routingModeTitle(condition.value as ChannelRoutingMode)
+    : formatConditionValue(condition.value);
+  return `${fieldName} ${opName} «${value}»`;
+}
 
-  if (typeof condition.value === "boolean") {
-    valueStr = condition.value ? t("common.yes") : t("common.no");
-  } else if (Array.isArray(condition.value)) {
-    valueStr = condition.value.join(", ");
+function formatTreeNode(tree: RuleConditionTree, nested: boolean): string {
+  if (!isRecord(tree)) return t("routing.no_conditions_always_matches");
+  if (isEmptyConditionTree(tree)) {
+    return t("routing.no_conditions_always_matches");
+  }
+  if (isRuleCondition(tree)) {
+    return formatCondition(tree);
+  }
+  if ("not" in tree) {
+    const inner = formatTreeNode(tree.not, true);
+    return `${t("routing.logic_not")} (${inner})`;
   }
 
-  return `${fieldName} ${opName} «${valueStr}»`;
+  const children = "all" in tree ? tree.all : "any" in tree ? tree.any : null;
+  if (!children) return t("routing.no_conditions_always_matches");
+  const isAny = "any" in tree;
+  if (children.length === 0) {
+    return t("routing.no_conditions_always_matches");
+  }
+  const connector = isAny ? ` ${t("routing.logic_or")} ` : ` ${t("routing.logic_and")} `;
+  const summary = children.map((child) => formatTreeNode(child, true)).join(connector);
+  return nested ? `(${summary})` : summary;
 }
 
 export function formatConditionsSummary(tree: RuleConditionTree): string {
-  const conditions = tree.all ?? tree.any ?? [];
-  if (conditions.length === 0) {
-    return t("routing.no_conditions_always_matches");
+  return formatTreeNode(tree, false);
+}
+
+export function cloneConditionTree(tree: RuleConditionTree): RuleConditionTree {
+  if (!isRecord(tree) || isEmptyConditionTree(tree)) return {};
+  if (isRuleCondition(tree)) {
+    return { ...tree, value: Array.isArray(tree.value) ? [...tree.value] : tree.value };
   }
-  const isAny = Boolean(tree.any && tree.any.length > 0);
-  const connector = isAny ? ` ${t("routing.logic_or")} ` : ` ${t("routing.logic_and")} `;
-  return conditions.map(formatCondition).join(connector);
+  if ("not" in tree) {
+    return { not: cloneConditionTree(tree.not) };
+  }
+  if ("all" in tree) {
+    return { all: tree.all.map(cloneConditionTree) };
+  }
+  if ("any" in tree) {
+    return { any: tree.any.map(cloneConditionTree) };
+  }
+  return {};
 }
 
 export function formatScheduleOverview(hours: ChannelBusinessHours | null): string {
   if (!hours) return t("routing.hours_not_configured");
-  const activeDays = (Object.keys(hours.weekly_schedule) as DayKey[]).filter(
-    (day) => (hours.weekly_schedule[day]?.length ?? 0) > 0,
+  const schedule = hours.weekly_schedule ?? {};
+  if (Object.keys(schedule).length === 0) {
+    return t("routing.hours_round_the_clock");
+  }
+  const activeDays = (Object.keys(schedule) as DayKey[]).filter(
+    (day) => (schedule[day]?.length ?? 0) > 0,
   );
   if (activeDays.length === 0) {
-    return t("routing.hours_round_the_clock");
+    return t("routing.hours_not_configured");
   }
   return `${activeDays.length} / 7 дней (${hours.timezone})`;
 }

@@ -27,7 +27,7 @@ export function useDialogKeyboardNav({
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
       const target = event.target as HTMLElement | null;
-      if (target?.closest("input, textarea, [contenteditable], .ant-dropdown")) return;
+      if (target?.closest("input, textarea, [contenteditable], .app-dropdown, .ContextMenu, .Popover")) return;
       if (event.key === "ArrowDown" || event.key === "ArrowUp") {
         const list = dialogsRef.current;
         if (!list.length) return;
