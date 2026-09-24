@@ -79,6 +79,7 @@ INSTALLED_APPS = [
     "chatballs.support_portals",
     "chatballs.calls",
     "chatballs.updates",
+    "chatballs.tickets",
     # django-channels НЕ добавляется в INSTALLED_APPS: его app label «channels»
     # конфликтует с доменным chatballs.channels, а без runserver-оверрайда
     # (сервер — uvicorn) библиотеке достаточно CHANNEL_LAYERS.

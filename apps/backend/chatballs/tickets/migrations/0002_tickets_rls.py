@@ -1,10 +1,17 @@
-"""RLS и cross-tenant guards для правил и расписания каналов."""
+"""RLS-политики и cross-tenant DB guards для таблиц модуля заявок."""
 
 from django.db import migrations
 
 TABLES = (
-    "channels_channelroutingrule",
-    "channels_channelbusinesshours",
+    "tickets_heldesksettings",
+    "tickets_ticketnumbercounter",
+    "tickets_ticket",
+    "tickets_ticketconversationlink",
+    "tickets_ticketcontactlink",
+    "tickets_ticketnote",
+    "tickets_ticketcomment",
+    "tickets_ticketevent",
+    "tickets_ticketpublicaccess",
 )
 
 FORWARD_RLS = """
@@ -28,22 +35,106 @@ CREATE POLICY chatballs_schema_access ON {table}
 
 TRIGGERS = (
     (
-        "c04_routing_rule_channel",
-        "channels_channelroutingrule",
-        "channels_channel",
-        "channel_id",
+        "t01_ticket_requester",
+        "tickets_ticket",
+        "conversations_contact",
+        "requester_contact_id",
     ),
     (
-        "c04_routing_rule_group",
-        "channels_channelroutingrule",
+        "t01_ticket_assignee",
+        "tickets_ticket",
+        "identity_employeeprofile",
+        "assignee_membership_id",
+    ),
+    (
+        "t01_ticket_group",
+        "tickets_ticket",
         "identity_employeegroup",
-        "target_group_id",
+        "group_id",
     ),
     (
-        "c04_business_hours_channel",
-        "channels_channelbusinesshours",
-        "channels_channel",
-        "channel_id",
+        "t01_ticket_conversation",
+        "tickets_ticket",
+        "conversations_conversation",
+        "origin_conversation_id",
+    ),
+    (
+        "t01_convlink_ticket",
+        "tickets_ticketconversationlink",
+        "tickets_ticket",
+        "ticket_id",
+    ),
+    (
+        "t01_convlink_conversation",
+        "tickets_ticketconversationlink",
+        "conversations_conversation",
+        "conversation_id",
+    ),
+    (
+        "t01_contactlink_ticket",
+        "tickets_ticketcontactlink",
+        "tickets_ticket",
+        "ticket_id",
+    ),
+    (
+        "t01_contactlink_contact",
+        "tickets_ticketcontactlink",
+        "conversations_contact",
+        "contact_id",
+    ),
+    (
+        "t01_note_ticket",
+        "tickets_ticketnote",
+        "tickets_ticket",
+        "ticket_id",
+    ),
+    (
+        "t01_note_author",
+        "tickets_ticketnote",
+        "identity_employeeprofile",
+        "author_membership_id",
+    ),
+    (
+        "t01_comment_ticket",
+        "tickets_ticketcomment",
+        "tickets_ticket",
+        "ticket_id",
+    ),
+    (
+        "t01_comment_author_m",
+        "tickets_ticketcomment",
+        "identity_employeeprofile",
+        "author_membership_id",
+    ),
+    (
+        "t01_comment_author_c",
+        "tickets_ticketcomment",
+        "conversations_contact",
+        "author_contact_id",
+    ),
+    (
+        "t01_event_ticket",
+        "tickets_ticketevent",
+        "tickets_ticket",
+        "ticket_id",
+    ),
+    (
+        "t01_event_actor_m",
+        "tickets_ticketevent",
+        "identity_employeeprofile",
+        "actor_membership_id",
+    ),
+    (
+        "t01_event_actor_c",
+        "tickets_ticketevent",
+        "conversations_contact",
+        "actor_contact_id",
+    ),
+    (
+        "t01_pubaccess_ticket",
+        "tickets_ticketpublicaccess",
+        "tickets_ticket",
+        "ticket_id",
     ),
 )
 
@@ -100,9 +191,8 @@ def remove_guards(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("tenancy", "0037_queue_policy_guards"),
-        ("channels", "0009_channel_routing"),
-        ("conversations", "0027_contact_labels"),
+        ("tickets", "0001_initial"),
+        ("tenancy", "0038_channel_routing_guards"),
     ]
 
     operations = [migrations.RunPython(apply_guards, remove_guards)]

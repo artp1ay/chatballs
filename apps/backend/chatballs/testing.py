@@ -93,6 +93,7 @@ class TenantAPIClient(APIClient):
         "integrations",
         "notifications",
         "support",
+        "tickets",
     }
     public_prefixes = (
         "/api/v1/ai/files/",

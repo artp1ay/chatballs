@@ -33,6 +33,8 @@ ALL_CAPABILITIES: frozenset[str] = frozenset(
         "notifications.manage",
         "employees.manage_privileged",
         "ownership.transfer",
+        "tickets.view",
+        "tickets.manage",
     }
 )
 
@@ -45,6 +47,8 @@ EMPLOYEE_CAPABILITIES: frozenset[str] = frozenset(
         "customers.view",
         "support.view",
         "support.operate",
+        "tickets.view",
+        "tickets.manage",
     }
 )
 

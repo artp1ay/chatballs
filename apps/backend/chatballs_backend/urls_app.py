@@ -55,10 +55,15 @@ urlpatterns = [
         "api/v1/organizations/<uuid:organization_public_id>/support/portals/",
         include("chatballs.support_portals.urls"),
     ),
+    path(
+        "api/v1/organizations/<uuid:organization_public_id>/tickets/",
+        include("chatballs.tickets.urls"),
+    ),
     path("api/v1/organizations/<uuid:organization_public_id>/calls/", include("chatballs.calls.urls")),
     path("api/v1/webchat/", include("chatballs.webchat.urls")),
     path("api/v1/health/", include("chatballs.health.urls")),
     path("api/v1/ai/", include("chatballs.ai.public_urls")),
+    path("api/v1/help/tickets/", include("chatballs.tickets.public_urls")),
     path("api/v1/help/", include("chatballs.support_portals.public_urls")),
     path("api/v1/calls/", include("chatballs.calls.public_urls")),
 ]

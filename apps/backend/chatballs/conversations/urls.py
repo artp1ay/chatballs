@@ -8,6 +8,7 @@ from chatballs.conversations import (
     views,
     voice_views,
 )
+from chatballs.tickets.api.conversation_views import ConversationCreateTicketView
 
 urlpatterns = [
     path("", views.ConversationListView.as_view(), name="conversation-list"),
@@ -23,6 +24,7 @@ urlpatterns = [
     path("<int:conversation_id>/messages/", views.ConversationMessageView.as_view(), name="conversation-messages"),
     path("<int:conversation_id>/request-contact/", views.ConversationRequestContactView.as_view(), name="conversation-request-contact"),
     path("<int:conversation_id>/contact/", chat_extras_views.ConversationContactView.as_view(), name="conversation-contact"),
+    path("<int:conversation_id>/ticket/", ConversationCreateTicketView.as_view(), name="conversation-ticket"),
     path("<int:conversation_id>/close/", views.ConversationCloseView.as_view(), name="conversation-close"),
     path("<int:conversation_id>/spam/", views.ConversationSpamView.as_view(), name="conversation-spam"),
     path("<int:conversation_id>/group/", views.ConversationGroupView.as_view(), name="conversation-group"),
