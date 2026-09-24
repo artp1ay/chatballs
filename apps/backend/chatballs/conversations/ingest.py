@@ -16,9 +16,17 @@ import logging
 from django.db import IntegrityError, transaction
 from django.utils import timezone
 
+from chatballs.channels.models import RuleActionTarget
+from chatballs.channels.rules.ingest import route_inbound_conversation
 from chatballs.conversations import transports
 from chatballs.conversations.ai_turn import request_ai_turn
 from chatballs.conversations.contact_avatars import refresh_contact_avatar
+from chatballs.conversations.inbound_media import store_attachment, store_voice
+from chatballs.conversations.inbound_notifications import (
+    notify_media_operator,
+    notify_new_dialog,
+    notify_new_message,
+)
 from chatballs.conversations.models import (
     ConnectionIdentity,
     Contact,
@@ -30,12 +38,9 @@ from chatballs.conversations.models import (
     MessageAuthor,
     MessageKind,
 )
-from chatballs.conversations.queue import QUEUE_FIELDS, enter_queue, is_waiting
+from chatballs.conversations.queue import QUEUE_FIELDS, enter_queue
 from chatballs.conversations.transports.base import InboundMessage
 from chatballs.events.models import EventOwnership, InboxEvent
-from chatballs.i18n import t
-from chatballs.notifications.models import NotificationAudience, NotificationType
-from chatballs.notifications.services import notify
 from chatballs.tenancy.context import TenantContext
 
 logger = logging.getLogger(__name__)
@@ -73,18 +78,10 @@ def ingest_inbound(integration, inbound: InboundMessage) -> None:
     context = TenantContext.for_resource(channel.organization)
     agent = getattr(channel, "ai_agent", None)
     ai_available = bool(agent and agent.is_active)
-    if not ai_available:
-        # Частая причина «диалог сразу ждёт оператора»: у канала подключения нет
-        # агента или он не активен. В журнале это должно быть видно одной
-        # строкой, иначе настройку ищут перебором.
-        logger.info(
-            "Channel %s has no active AI agent (agent=%s) — conversation goes to the operator queue",
-            channel.id,
-            getattr(agent, "status", None),
-        )
     source = f"{integration.provider.lower()}:{integration.id}"
     if _already_processed(context, source, inbound.external_id, inbound.text):
         return
+    received_at = timezone.now()
 
     # Явный шаринг контакта: сообщение без текста, но с телефоном.
     is_contact_share = bool(inbound.phone)
@@ -147,6 +144,7 @@ def ingest_inbound(integration, inbound: InboundMessage) -> None:
             .first()
         )
         is_new = conversation is None
+        previous = None
         if conversation is None:
             # ADR-CHATBALLS-0002: новое сообщение после закрытия создаёт новый диалог,
             # связанный с предыдущим для навигации по истории.
@@ -159,9 +157,9 @@ def ingest_inbound(integration, inbound: InboundMessage) -> None:
                 connection=integration,
                 contact=contact,
                 external_chat_id=inbound.chat_id,
-                control_mode=ControlMode.AI if ai_available else ControlMode.PAUSED,
-                expected_responder=ExpectedResponder.AI if ai_available else ExpectedResponder.OPERATOR,
-                waiting_since=None if ai_available else timezone.now(),
+                control_mode=ControlMode.PAUSED,
+                expected_responder=ExpectedResponder.OPERATOR,
+                waiting_since=received_at,
                 previous_conversation=previous,
             )
         elif inbound.chat_id and not conversation.external_chat_id:
@@ -183,7 +181,7 @@ def ingest_inbound(integration, inbound: InboundMessage) -> None:
                 external_id=inbound.external_id,
             )
             if is_voice:
-                _store_voice(integration, inbound, message)
+                store_voice(integration, inbound, message)
         for index, inbound_file in enumerate(files):
             file_message = Message.objects.create(
                 conversation=conversation,
@@ -191,12 +189,23 @@ def ingest_inbound(integration, inbound: InboundMessage) -> None:
                 kind=MessageKind.FILE,
                 external_id=f"{inbound.external_id}:file:{index}" if not files_only or index else inbound.external_id,
             )
-            _store_attachment(integration, inbound_file, file_message)
-        conversation.last_activity_at = timezone.now()
+            store_attachment(integration, inbound_file, file_message)
+        is_first_message = not Conversation.objects.filter(contact_id=contact.pk).exclude(
+            pk=conversation.pk
+        ).exists()
+        routing_decision = route_inbound_conversation(
+            channel=channel,
+            contact=contact,
+            conversation=conversation,
+            inbound_message_text=message_text,
+            is_new_conversation=is_new,
+            is_first_message=is_first_message,
+            has_verified_phone=identity.phone_verified_at is not None,
+            has_active_ai_agent=ai_available,
+            current_time=received_at,
+        )
+        conversation.last_activity_at = received_at
         update_fields = ["external_chat_id", "last_activity_at"]
-        if conversation.control_mode == ControlMode.AI and not ai_available:
-            enter_queue(conversation)
-            update_fields.extend(QUEUE_FIELDS)
         if inbound.thread_meta:
             # Email: Message-ID последнего входящего — для ответа в тред;
             # тема диалога фиксируется по первому письму (ADR-CHATBALLS-0035).
@@ -209,51 +218,44 @@ def ingest_inbound(integration, inbound: InboundMessage) -> None:
             update_fields.append("transport_meta")
         conversation.save(update_fields=update_fields)
 
-    if is_new:
-        # Диалог, которым занялся агент, — это «новый диалог» и больше ничего.
-        # Диалог, отвечать в котором некому, — уже просьба о человеке: событие
-        # одно, а смысл для смены разный, и подписки на них тоже разные.
-        notify(
+    if (
+        routing_decision is not None
+        and routing_decision.target == RuleActionTarget.DROP_SILENTLY
+    ):
+        return
+
+    # Файлы без текста: отвечать не на что — диалог уходит оператору, как при
+    # недоступном AI, но без имитации сбоя. Голосовое сюда не попадает: его
+    # расшифровка — это обращение к провайдеру, и оно идёт ходом AI.
+    if files_only:
+        if conversation.control_mode == ControlMode.AI:
+            enter_queue(conversation)
+            conversation.save(update_fields=QUEUE_FIELDS)
+        notify_media_operator(
             context=context,
-            type=(
-                NotificationType.OPERATOR_REQUESTED
-                if is_waiting(conversation)
-                else NotificationType.NEW_DIALOG
-            ),
-            audience=NotificationAudience.OPERATORS,
-            audience_group=conversation.group,
-            title=f"Новый диалог · {channel.name}",
-            body=f"{contact.name or 'Гость'} · {integration.provider}: {message_text[:80]}",
-            title_key="notifications.new_dialog",
-            body_key="notifications.new_dialog_body",
-            text_params={
-                "channel": channel.name,
-                "contact": contact.name or t("conversations.guest"),
-                "provider": integration.provider,
-                "preview": message_text[:80],
-            },
-            target_id=conversation.id,
-            source_type="Conversation",
-            source_id=conversation.id,
-            dedup_key=f"dialog:{conversation.id}",
+            contact=contact,
+            conversation=conversation,
+            message_text=message_text,
+        )
+        return
+
+    if is_new:
+        notify_new_dialog(
+            context=context,
+            channel=channel,
+            contact=contact,
+            integration=integration,
+            conversation=conversation,
+            message_text=message_text,
         )
     elif conversation.control_mode != ControlMode.AI:
-        # Клиент написал в диалог, который ведёт оператор или который в очереди — пуш.
-        operator = conversation.assigned_operator
-        notify(
+        notify_new_message(
             context=context,
-            type=NotificationType.DIALOG_NEW_MESSAGE,
-            audience=NotificationAudience.USER if operator else NotificationAudience.OPERATORS,
-            audience_group=conversation.group,
-            recipient_user=operator,
-            title=f"Новое сообщение · {contact.name or 'Гость'}",
-            body=message_text[:120],
-            title_key="notifications.new_message",
-            text_params={"contact": contact.name or t("conversations.guest")},
-            target_id=conversation.id,
-            source_type="Conversation",
-            source_id=conversation.id,
-            dedup_key=f"msg:{integration.id}:{inbound.external_id}",
+            contact=contact,
+            integration=integration,
+            conversation=conversation,
+            external_id=inbound.external_id,
+            message_text=message_text,
         )
 
     # Полученный контакт: телефон сохранён — подтверждаем (в TG заодно убираем
@@ -264,31 +266,6 @@ def ingest_inbound(integration, inbound: InboundMessage) -> None:
         conversation.expected_responder = ExpectedResponder.CUSTOMER if conversation.control_mode == ControlMode.AI else conversation.expected_responder
         conversation.save(update_fields=["expected_responder"])
         transports.send_contact_ack(integration, chat_id=conversation.external_chat_id, user_id=inbound.user_id, text=ack)
-        return
-
-    # Файлы без текста: отвечать не на что — диалог уходит оператору, как при
-    # недоступном AI, но без имитации сбоя. Голосовое сюда не попадает: его
-    # расшифровка — это обращение к провайдеру, и она идёт ходом AI.
-    if files_only:
-        if conversation.control_mode == ControlMode.AI:
-            enter_queue(conversation)
-            conversation.save(update_fields=QUEUE_FIELDS)
-            if is_new:
-                return
-            notify(
-                context=context,
-                type=NotificationType.OPERATOR_REQUESTED,
-                audience=NotificationAudience.OPERATORS,
-                audience_group=conversation.group,
-                title=f"Нужен оператор · {contact.name or 'Гость'}",
-                title_key="notifications.operator_needed",
-                text_params={"contact": contact.name or t("conversations.guest")},
-                body=message_text[:120],
-                target_id=conversation.id,
-                source_type="Conversation",
-                source_id=conversation.id,
-                dedup_key=f"media:{conversation.id}",
-            )
         return
 
     # Операторский канал без активного агента сразу создаёт очередь и не
@@ -305,46 +282,3 @@ def ingest_inbound(integration, inbound: InboundMessage) -> None:
         context=context,
         is_new_conversation=is_new,
     )
-
-
-def _store_attachment(integration, inbound_file, message: Message) -> None:
-    """Скачивание и сохранение файла/фото. Сбой скачивания не теряет сообщение:
-    остаётся текстовая заглушка с именем файла."""
-    from django.core.files.base import ContentFile
-
-    try:
-        content, content_type = transports.download_file(integration, inbound_file)
-    except Exception as error:  # noqa: BLE001 - провайдер/сеть, деградация мягкая
-        logger.warning("Attachment download failed for message %s: %s", message.id, error)
-        message.kind = MessageKind.TEXT
-        message.text = f"Файл «{inbound_file.name or 'без имени'}» (не удалось загрузить)"
-        message.save(update_fields=["kind", "text"])
-        return
-    name = inbound_file.name or ("photo.jpg" if inbound_file.is_image else "file")
-    message.attachment_name = name
-    message.attachment_content_type = content_type
-    message.attachment_size = len(content)
-    message.attachment.save(name, ContentFile(content), save=False)
-    message.save(update_fields=["attachment", "attachment_name", "attachment_content_type", "attachment_size"])
-
-
-def _store_voice(integration, inbound: InboundMessage, message: Message) -> None:
-    """Скачивание и сохранение голосового. Сбой скачивания не теряет сообщение:
-    остаётся текстовая заглушка без аудио."""
-    from django.core.files.base import ContentFile
-
-    try:
-        content, content_type = transports.download_voice(integration, inbound)
-    except Exception as error:  # noqa: BLE001 - провайдер/сеть, деградация мягкая
-        logger.warning(
-            "Voice download failed for message %s: %s", message.id, error
-        )
-        message.kind = MessageKind.TEXT
-        message.text = "Голосовое сообщение (не удалось загрузить)"
-        message.save(update_fields=["kind", "text"])
-        return
-    suffix = "ogg" if "ogg" in content_type else content_type.rsplit("/", 1)[-1][:8] or "bin"
-    message.audio_content_type = content_type
-    message.duration_seconds = inbound.voice_duration
-    message.audio.save(f"voice.{suffix}", ContentFile(content), save=False)
-    message.save(update_fields=["audio", "audio_content_type", "duration_seconds"])
