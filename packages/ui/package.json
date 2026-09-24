@@ -10,9 +10,16 @@
     "test": "vitest run --passWithNoTests"
   },
   "peerDependencies": {
+    "@bem-react/classname": "^1.8.0",
     "@chatballs/shared": "0.1.0",
-    "antd": "^5.26.0",
+    "@consta/icons": "^1.7.1",
+    "@consta/uikit": "^5.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@bem-react/classname": "^1.8.0",
+    "@consta/icons": "^1.7.1",
+    "@consta/uikit": "^5.33.3"
   }
 }

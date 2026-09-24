@@ -1,71 +1,80 @@
-import { theme as antdTheme } from "antd";
-import type { ThemeConfig } from "antd";
+import {
+  presetGpnDark,
+  presetGpnDefault,
+  type ThemePreset,
+} from "@consta/uikit/Theme";
 
-// Персональная тема и акцент (SPEC-CHATBALLS-0031 §7): antd-конфиг собирается из
-// выбранных пользователем режима (light/dark) и акцентного цвета.
-export function buildTheme(dark: boolean, accent: string): ThemeConfig {
-  const base = chatballsTheme;
-  if (!dark) {
-    return {
-      ...base,
-      token: { ...base.token, colorPrimary: accent, colorInfo: accent },
-    };
-  }
+export { presetGpnDark, presetGpnDefault, type ThemePreset };
+
+/** Пресет светлой темы Chatballs по умолчанию */
+export const presetChatballsDefault: ThemePreset = presetGpnDefault;
+
+/** Пресет тёмной темы Chatballs */
+export const presetChatballsDark: ThemePreset = presetGpnDark;
+
+/** Базовый пресет темы Chatballs */
+export const chatballsTheme: ThemePreset = presetChatballsDefault;
+
+/**
+ * Возвращает пресет темы Consta UI в зависимости от режима (светлый/тёмный).
+ */
+export function getThemePreset(dark: boolean): ThemePreset {
+  return dark ? presetGpnDark : presetGpnDefault;
+}
+
+/**
+ * Генерирует словарь CSS-переменных для инъекции акцентного цвета в тему Consta UI.
+ */
+export function getAccentVariables(accent: string, dark = false): Record<string, string> {
+  if (!accent) return {};
+
+  const hover = dark
+    ? `color-mix(in srgb, ${accent} 85%, white)`
+    : `color-mix(in srgb, ${accent} 85%, black)`;
+  const active = dark
+    ? `color-mix(in srgb, ${accent} 75%, white)`
+    : `color-mix(in srgb, ${accent} 75%, black)`;
+
   return {
-    algorithm: antdTheme.darkAlgorithm,
-    token: {
-      ...base.token,
-      colorPrimary: accent,
-      colorInfo: accent,
-      // Нейтрали тёмной темы — из дизайн-базлайна v2.
-      colorBgLayout: "#101113",
-      colorBgContainer: "#1b1c1f",
-      colorBorder: "#2d2f35",
-      colorText: "#c3c5ca",
-      colorTextSecondary: "#767881",
-    },
-    components: {
-      ...base.components,
-      Layout: { headerBg: "#1b1c1f", siderBg: "#181a1d", bodyBg: "#101113" },
-      Table: { headerBg: "#212327", headerColor: "#767881", rowHoverBg: "#212327" },
-      Button: base.components?.Button,
-    },
+    "--color-control-bg-primary": accent,
+    "--color-control-bg-primary-hover": hover,
+    "--color-control-bg-border-secondary": accent,
+    "--color-control-bg-border-secondary-hover": hover,
+    "--color-control-typo-secondary": accent,
+    "--color-control-typo-secondary-hover": hover,
+    "--color-control-bg-border-focus": hover,
+    "--color-control-bg-focus": `color-mix(in srgb, ${accent} 30%, transparent)`,
+    "--color-control-bg-active": active,
+    "--color-typo-brand": accent,
+    "--color-bg-brand": accent,
+    "--color-bg-link": accent,
+    "--color-typo-link": accent,
+    "--color-typo-link-hover": hover,
   };
 }
 
-export const chatballsTheme: ThemeConfig = {
-  token: {
-    colorPrimary: "#1677ff",
-    colorSuccess: "#52c41a",
-    colorWarning: "#faad14",
-    colorError: "#ff4d4f",
-    colorInfo: "#1677ff",
-    borderRadius: 8,
-    colorBgLayout: "#f0f2f5",
-    colorBgContainer: "#ffffff",
-    colorBorder: "#f0f0f0",
-    colorText: "#262626",
-    colorTextSecondary: "#8c8c8c",
-    fontFamily:
-      '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-  },
-  components: {
-    Layout: {
-      headerBg: "#ffffff",
-      siderBg: "#ffffff",
-      bodyBg: "#f0f2f5",
-    },
-    Card: {
-      borderRadiusLG: 8,
-    },
-    Table: {
-      headerBg: "#fafafa",
-      headerColor: "#8c8c8c",
-      rowHoverBg: "#fafbfc",
-    },
-    Button: {
-      borderRadius: 8,
-      primaryShadow: "0 1px 2px rgba(22,119,255,0.3)",
-    },
-  },
-};
+/**
+ * Применяет CSS-переменные акцентного цвета к целевому элементу (по умолчанию document.documentElement).
+ */
+export function applyAccentColor(
+  accent: string,
+  dark = false,
+  target?: HTMLElement,
+): void {
+  if (typeof document === "undefined" && !target) return;
+  const el = target ?? document.documentElement;
+  const vars = getAccentVariables(accent, dark);
+  for (const [key, value] of Object.entries(vars)) {
+    el.style.setProperty(key, value);
+  }
+}
+
+/**
+ * Собирает пресет темы Consta UI и при необходимости применяет CSS-переменные акцентного цвета.
+ */
+export function buildTheme(dark: boolean, accent?: string): ThemePreset {
+  if (accent) {
+    applyAccentColor(accent, dark);
+  }
+  return getThemePreset(dark);
+}

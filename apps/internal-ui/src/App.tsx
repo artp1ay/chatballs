@@ -1,13 +1,11 @@
-import { ConfigProvider } from "antd";
-import enUS from "antd/locale/en_US";
-import ruRU from "antd/locale/ru_RU";
+import { Theme } from "@consta/uikit/Theme";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { buildTheme } from "@chatballs/ui";
 
 import { applyAppearance, DEFAULT_ACCENT, resolvedDark } from "./shared/appearance";
 
-import { acceptServerLanguage, language } from "./i18n";
+import { acceptServerLanguage } from "./i18n";
 import { api, setActiveOrganization } from "./api/client";
 import { fetchAgentDirectory } from "./features/agents/model";
 import { canAccess, defaultRoute, isManager } from "./auth/access";
@@ -30,14 +28,10 @@ export function App() {
   useEffect(() => {
     applyAppearance(appearanceTheme, appearanceAccent);
   }, [appearanceTheme, appearanceAccent]);
-  const antdTheme = useMemo(
+  const constaPreset = useMemo(
     () => buildTheme(resolvedDark(appearanceTheme), appearanceAccent),
     [appearanceTheme, appearanceAccent],
   );
-  // Свои строки antd — «Нет данных», подписи пагинации, календарь — берёт из
-  // собственных каталогов, и без locale остаётся английским посреди русского
-  // экрана. Язык здесь уже окончательный: смена приходит перезагрузкой.
-  const antdLocale = language() === "en" ? enUS : ruRU;
   const [user, setUser] = useState<SessionUser | null>(null);
   const [organizationPublicId, setOrganizationPublicId] = useState<string | null>(initialRoute.organizationPublicId);
   const [totpChallenge, setTotpChallenge] = useState<AuthChallenge | null>(null);
@@ -210,16 +204,16 @@ export function App() {
 
   if (resetting) {
     return (
-      <ConfigProvider theme={antdTheme} locale={antdLocale}>
+      <Theme preset={constaPreset}>
         <AuthResetPassword onDone={() => { setResetting(false); window.history.replaceState({}, "", pathFromRoute("chat")); }} />
-      </ConfigProvider>
+      </Theme>
     );
   }
 
-  if (sessionLoading) return <ConfigProvider theme={antdTheme} locale={antdLocale}><LoadingScreen /></ConfigProvider>;
+  if (sessionLoading) return <Theme preset={constaPreset}><LoadingScreen /></Theme>;
 
   return (
-    <ConfigProvider theme={antdTheme} locale={antdLocale}>
+    <Theme preset={constaPreset}>
       {totpChallenge ? (
         <AuthTotpCode challenge={totpChallenge} onVerified={(nextUser) => { setTotpChallenge(null); landAfterAuth(nextUser); }} />
       ) : organizationChoice ? (
@@ -253,6 +247,6 @@ export function App() {
           <Shell key={user.organizationPublicId} route={navigation.route} setRoute={(nextRoute) => navigate(nextRoute)} selectedEmployeeId={navigation.selectedEmployeeId} selectedAgentId={navigation.selectedAgentId} selectedKnowledgeId={navigation.selectedKnowledgeId} selectedConversationId={navigation.selectedConversationId} selectedClientId={navigation.selectedClientId} openClientRoute={(clientId) => navigate("salesClientDetail", clientId)} selectedChannelId={navigation.selectedChannelId} openChannelRoute={(channelId) => navigate("agentDetail", channelId)} selectedSupportPortalId={navigation.selectedSupportPortalId} openSupportPortalRoute={(portalId) => navigate("supportPortalDetail", portalId)} portalSettingsSection={navigation.selectedPortalSection} openPortalSettingsRoute={(portalId, section) => navigate("supportPortalSettings", `${portalId}/${section ?? ""}`)} settingsSection={navigation.selectedSettingsSection} openSettingsRoute={(section) => navigate("settings", section)} openEmployeeRoute={(employeeId) => navigate("employeeDetail", employeeId)} openAgentRoute={(agentId) => navigate("agentDetail", agentId)} openKnowledgeRoute={(knowledgeId) => navigate("knowledgeDetail", knowledgeId)} openKnowledgeEditorRoute={(knowledgeId) => (knowledgeId === null ? navigate("knowledgeCreate") : navigate("knowledgeEdit", knowledgeId))} openConversationRoute={(conversationId) => navigate("chat", conversationId)} user={user} data={data} reload={loadData} onUserUpdated={refreshIdentity} onLogout={logout} onSwitchOrganization={switchOrganization} onOrganizationCreated={finishOrganizationCreate} />
         </RealtimeProvider>
       )}
-    </ConfigProvider>
+    </Theme>
   );
 }
