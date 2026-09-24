@@ -256,14 +256,11 @@ class RoutingRuleUnitTests(SimpleTestCase):
         self.assertEqual(decision.rule_id, 10)
 
     def test_assign_group_clears_previous_assignment(self) -> None:
-        from types import SimpleNamespace as NS
-
-        from chatballs.channels.models import RuleActionTarget
         from chatballs.channels.rules.actions import apply_routing_decision
         from chatballs.channels.rules.types import RouteDecision
         from chatballs.conversations.models import ControlMode, ExpectedResponder
 
-        conversation = NS(
+        conversation = SimpleNamespace(
             control_mode=ControlMode.PAUSED,
             lifecycle="OPEN",
             waiting_since=None,
@@ -271,7 +268,7 @@ class RoutingRuleUnitTests(SimpleTestCase):
             assigned_at=object(),
             group_id=1,
         )
-        channel = NS(group_id=1, ai_agent=NS(is_active=True))
+        channel = SimpleNamespace(group_id=1, ai_agent=SimpleNamespace(is_active=True))
         fields = apply_routing_decision(
             conversation,
             RouteDecision(RuleActionTarget.ASSIGN_GROUP, target_group_id=2),

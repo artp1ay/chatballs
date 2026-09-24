@@ -93,7 +93,7 @@ def remove_guards(apps, schema_editor):
         schema_editor.execute(f"ALTER TABLE {table} DISABLE ROW LEVEL SECURITY")
         schema_editor.execute(f"REVOKE ALL ON {table} FROM chatballs_runtime_app")
         schema_editor.execute(
-            f"REVOKE USAGE, SELECT ON SEQUENCE {table}_id_seq FROM chatballs_runtime_app"
+            f"REVOKE ALL ON SEQUENCE {table}_id_seq FROM chatballs_runtime_app"
         )
 
 
