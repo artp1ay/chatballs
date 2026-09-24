@@ -176,6 +176,7 @@ def reorder_rules(
     if (
         not isinstance(rule_ids, list)
         or not rule_ids
+        or len(rule_ids) > 100
         or any(isinstance(item, bool) or not isinstance(item, int) for item in rule_ids)
         or len(set(rule_ids)) != len(rule_ids)
     ):
@@ -241,7 +242,10 @@ def _rule_values(
 
     trigger = data.get(
         "trigger_event",
-        getattr(current, "trigger_event", RuleTriggerEvent.CONVERSATION_CREATED),
+        data.get(
+            "triggerEvent",
+            getattr(current, "trigger_event", RuleTriggerEvent.CONVERSATION_CREATED),
+        ),
     )
     try:
         values["trigger_event"] = RuleTriggerEvent(str(trigger))
@@ -263,7 +267,10 @@ def _rule_values(
 
     action = data.get(
         "action_target",
-        getattr(current, "action_target", RuleActionTarget.ROUTE_TO_AI),
+        data.get(
+            "actionTarget",
+            getattr(current, "action_target", RuleActionTarget.ROUTE_TO_AI),
+        ),
     )
     try:
         action = RuleActionTarget(str(action))
@@ -273,7 +280,10 @@ def _rule_values(
 
     target_group_id = data.get(
         "target_group_id",
-        data.get("target_group", getattr(current, "target_group_id", None)),
+        data.get(
+            "targetGroupId",
+            data.get("target_group", getattr(current, "target_group_id", None)),
+        ),
     )
     if target_group_id is not None:
         if isinstance(target_group_id, bool) or not isinstance(target_group_id, int):
