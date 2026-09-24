@@ -13,6 +13,7 @@ const tenantNamespaces = [
   "agents",
   "ai",
   "calls",
+  "channels",
   "company",
   "conversations",
   "employees",

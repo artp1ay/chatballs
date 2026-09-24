@@ -14,6 +14,7 @@ import { groupColorOf } from "../conversations/model";
 import { linkKnowledgeToAgent, linkPortalArticlesToAgent } from "../ai/knowledge/api";
 import { fetchLlmProviders, webWidgetSnippet, type Integration } from "../integrations/model";
 import { AgentKnowledgeDialog } from "./AgentKnowledgeDialog";
+import { ChannelRoutingCard } from "./routing/ChannelRoutingCard";
 import {
   agentStatusMeta,
   agentTile,
@@ -294,6 +295,7 @@ export function AgentDetailPage({
         <div className="agent-column">
           <InstructionsCard card={card} canManage={canManage} busy={busy} apply={apply} />
           <KnowledgeCard card={card} canManage={canManage} openKnowledge={openKnowledge} reload={reload} />
+          <ChannelRoutingCard channelId={card.id} groups={groups} canManage={canManage} />
         </div>
         <div className="agent-column">
           <AssignmentCard card={card} groups={groups} canManage={canManage} busy={busy} apply={apply} />
