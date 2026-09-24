@@ -77,7 +77,7 @@ import { Text } from '@consta/uikit/Text';
 - **Начертания (`weight`):** `regular`, `medium`, `semibold`, `bold`.
 - **Цветовые роли (`view`):** `primary` (основной), `secondary` (приглушенный), `ghost` (неактивный), `brand` (акцентный), `alert` (ошибка), `success` (успех).
 
-### 2.2. Оверлеи: модальные окна (`Modal`) и поповеры (`Popover`, `Tooltip`)
+### 2.2. Оверлеи: модальные окна (`Modal`), шторки (`Sidebar`) и поповеры (`Popover`, `Tooltip`)
 
 #### Модальные окна (`Modal`)
 Диалоги строятся на компоненте `Modal` (`@consta/uikit/Modal`) в связке с контейнером `Card`:
@@ -97,13 +97,7 @@ interface DialogProps {
 }
 
 export const ConfirmDialog: React.FC<DialogProps> = ({ isOpen, onClose, onConfirm, title }) => (
-  <Modal
-    isOpen={isOpen}
-    hasOverlay
-    onClickOutside={onClose}
-    onEsc={onClose}
-    className="chatballs-modal"
-  >
+  <Modal isOpen={isOpen} hasOverlay onClickOutside={onClose} onEsc={onClose}>
     <Card verticalSpace="l" horizontalSpace="l" status="border">
       <Text size="2xl" weight="semibold" view="primary" space="m">
         {title}
@@ -114,6 +108,24 @@ export const ConfirmDialog: React.FC<DialogProps> = ({ isOpen, onClose, onConfir
       </div>
     </Card>
   </Modal>
+);
+```
+
+#### Боковые панели и шторки (`Sidebar`)
+Для выкатных панелей (шторка уведомлений, просмотр сущностей) вместо устаревшего `Drawer` используется `Sidebar` (`@consta/uikit/Sidebar`):
+
+```tsx
+import React from 'react';
+import { Sidebar } from '@consta/uikit/Sidebar';
+
+export const SideDrawer: React.FC<{ isOpen: boolean; onClose: () => void; children: React.ReactNode }> = ({
+  isOpen,
+  onClose,
+  children,
+}) => (
+  <Sidebar isOpen={isOpen} onClickOutside={onClose} onEsc={onClose} position="right" size="m" hasOverlay>
+    <Sidebar.Content>{children}</Sidebar.Content>
+  </Sidebar>
 );
 ```
 
