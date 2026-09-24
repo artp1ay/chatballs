@@ -83,6 +83,44 @@ class VoiceAiReplyTests(TestCase):
         send.assert_not_called()
         self.assertEqual(conversation.control_mode, ControlMode.PAUSED)
 
+    def test_operator_claim_during_transcription_does_not_store_transcript(self) -> None:
+        owner = HumanUser.objects.get(email="owner@example.com")
+        context = tenant_context_for(owner, self.organization)
+
+        def transcribe_after_claim(*_args, **_kwargs):
+            conversation = self.channel.conversations.get()
+            claim_conversation(context=context, conversation_id=conversation.id)
+            return "Ответ, который уже не актуален"
+
+        with (
+            mock.patch(
+                "chatballs.conversations.ingest.transports.download_voice",
+                return_value=(b"OGG", "audio/ogg"),
+            ),
+            mock.patch(
+                "chatballs.conversations.transports.send_reply", return_value=True
+            ) as send,
+            mock.patch(
+                "chatballs.ai.provider.local.LocalProvider.transcribe",
+                side_effect=transcribe_after_claim,
+            ),
+            mock.patch("chatballs.conversations.ai_turn.run_turn_chat") as model,
+            tenant_atomic(self.organization.id),
+        ):
+            ingest_inbound(self.integration, self.inbound)
+            self.assertEqual(run_pending_ai_turns(), 1)
+
+        conversation = self.channel.conversations.get()
+        voice = conversation.messages.get(kind=MessageKind.VOICE)
+        self.assertEqual(voice.transcript, "")
+        self.assertEqual(voice.transcript_status, TranscriptStatus.NONE)
+        self.assertEqual(voice.ai_turn_state, AiTurnState.DONE)
+        self.assertFalse(conversation.messages.filter(author_type=MessageAuthor.AI).exists())
+        self.assertEqual(conversation.control_mode, ControlMode.HUMAN)
+        self.assertEqual(conversation.expected_responder, ExpectedResponder.OPERATOR)
+        model.assert_not_called()
+        send.assert_not_called()
+
     def test_transcript_is_in_ai_history(self) -> None:
         from chatballs.conversations.ai_turn import _history
 
