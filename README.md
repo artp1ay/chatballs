@@ -50,6 +50,7 @@
   - [External file storage (optional)](#external-file-storage-optional)
   - [Updating](#updating)
 - [Features](#features)
+- [Design System and Frontend](#design-system-and-frontend)
 - [Troubleshooting](#troubleshooting)
 - [License](#license)
 
@@ -212,6 +213,18 @@ Installs with one command, data stays with you. Connect any AI model provider wi
 ### Customer data protection
 
 Phone numbers, email addresses and long numeric identifiers are stripped from text before it is sent to the AI model. Integration tokens, SMTP passwords, S3 keys and TOTP secrets are stored encrypted in the database.
+
+---
+
+## Design System and Frontend
+
+The platform interfaces (`@chatballs/internal-ui`, `@chatballs/web-chat`, and `@chatballs/ui`) are unified under the **Consta UI** design system (`@consta/uikit`, `@consta/icons`).
+
+See:
+- [Developer Guide (Consta UI)](docs/design-system/developer-guide.md)
+- [Design System Specification](docs/design-system/README.md)
+- [`@chatballs/ui` Package Documentation](packages/ui/README.md)
+- [ADR: Consta UI Migration](docs/architecture/adr-consta-ui-migration.md)
 
 ---
 
