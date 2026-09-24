@@ -32,12 +32,15 @@ class RoutingContext:
     contact_labels: tuple[str, ...] = ()
     is_first_message: bool = False
     business_hours: ChannelBusinessHours | None = None
+    is_first_contact_message: bool | None = None
 
-    @property
-    def is_first_contact_message(self) -> bool:
-        """Совместимое имя предиката из архитектурной спецификации."""
-
-        return self.is_first_message
+    def __post_init__(self) -> None:
+        # Поддержаны оба имени поля: ingest и ранние черновики используют короткое,
+        # а архитектурный контракт — полное имя.
+        if self.is_first_contact_message is None:
+            object.__setattr__(self, "is_first_contact_message", self.is_first_message)
+        else:
+            object.__setattr__(self, "is_first_message", self.is_first_contact_message)
 
     @property
     def labels(self) -> tuple[str, ...]:

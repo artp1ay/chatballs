@@ -61,7 +61,7 @@ def _actual_value(field_name: Any, context: RoutingContext) -> Any:
     if field_name == "contact.has_phone":
         return context.has_verified_phone
     if field_name == "conversation.is_first_message":
-        return context.is_first_message
+        return context.is_first_contact_message
     if field_name == "contact.labels":
         return context.labels
     if field_name in {"message.text_contains", "message.regex_match"}:

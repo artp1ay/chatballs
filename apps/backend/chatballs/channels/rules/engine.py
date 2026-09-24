@@ -136,7 +136,11 @@ def _decision_for_rule(
 ) -> RouteDecision:
     target_group = getattr(rule, "target_group", None)
     group_organization = getattr(target_group, "organization_id", None)
-    if target_group is not None and group_organization != context.channel.organization_id:
+    if (
+        target_group is not None
+        and group_organization is not None
+        and group_organization != context.channel.organization_id
+    ):
         logger.warning("Правило %s ссылается на группу другой организации", rule.pk)
         return RouteDecision(RuleActionTarget.ROUTE_TO_HUMAN, reason="invalid_group")
     try:
