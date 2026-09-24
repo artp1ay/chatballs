@@ -207,7 +207,7 @@ def ingest_inbound(integration, inbound: InboundMessage) -> None:
             inbound_message_text=message_text,
             is_new_conversation=is_new,
             is_first_message=is_first_message,
-            has_verified_phone=identity.phone_verified_at is not None,
+            has_verified_phone=has_verified_phone,
             has_active_ai_agent=ai_available,
             current_time=received_at,
         )

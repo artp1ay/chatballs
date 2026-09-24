@@ -124,7 +124,10 @@ class ChannelRoutingRuleReorderView(APIView):
             count = services.reorder_rules(
                 context=request.tenant_context,
                 channel=channel,
-                rule_ids=_body(request).get("rule_ids"),
+                rule_ids=(
+                    _body(request).get("rule_ids")
+                    or _body(request).get("ruleIds")
+                ),
             )
         except ValidationError as error:
             return _validation_response(error)

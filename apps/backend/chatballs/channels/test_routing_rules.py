@@ -129,6 +129,35 @@ class RoutingRuleUnitTests(SimpleTestCase):
         business_hours.holidays = ["2026-05-01"]
         self.assertFalse(is_working_hours(context))
 
+    def test_overnight_interval_continues_on_next_day(self) -> None:
+        business_hours = SimpleNamespace(
+            timezone="UTC",
+            weekly_schedule={"thu": [{"start": "22:00", "end": "02:00"}]},
+            holidays=[],
+        )
+        during_night = RoutingContext(
+            channel=self.channel,
+            contact=self.contact,
+            conversation=None,
+            inbound_message_text="",
+            is_new_conversation=True,
+            current_time=datetime(2026, 5, 1, 1, 0, tzinfo=ZoneInfo("UTC")),
+            has_active_ai_agent=True,
+            business_hours=business_hours,
+        )
+        after_night = RoutingContext(
+            channel=self.channel,
+            contact=self.contact,
+            conversation=None,
+            inbound_message_text="",
+            is_new_conversation=True,
+            current_time=datetime(2026, 5, 1, 3, 0, tzinfo=ZoneInfo("UTC")),
+            has_active_ai_agent=True,
+            business_hours=business_hours,
+        )
+        self.assertTrue(is_working_hours(during_night))
+        self.assertFalse(is_working_hours(after_night))
+
     def test_missing_schedule_is_closed(self) -> None:
         context = RoutingContext(
             channel=self.channel,
