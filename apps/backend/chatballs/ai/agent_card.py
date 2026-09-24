@@ -127,6 +127,8 @@ def agent_card_payload(channel: Channel, *, knowledge_total: int | None = None) 
         "code": channel.code,
         "name": channel.name,
         "isActive": channel.is_active,
+        "routingMode": channel.routing_mode,
+        "routing_mode": channel.routing_mode,
         "groupId": channel.group_id,
         "groupName": channel.group.name if channel.group_id else None,
         # Цвет группы задаётся в настройках — точка у названия (кадры G1/G3).
@@ -243,6 +245,13 @@ def update_agent_card(
         name=body["name"] if "name" in body else UNSET,
         group_id=body["groupId"] if "groupId" in body else UNSET,
         is_active=body["isActive"] if "isActive" in body else UNSET,
+        routing_mode=(
+            body["routingMode"]
+            if "routingMode" in body
+            else body["routing_mode"]
+            if "routing_mode" in body
+            else UNSET
+        ),
     )
     channel = update_channel(context=context, channel=channel, update=update)
 

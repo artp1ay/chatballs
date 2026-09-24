@@ -190,9 +190,16 @@ def ingest_inbound(integration, inbound: InboundMessage) -> None:
                 external_id=f"{inbound.external_id}:file:{index}" if not files_only or index else inbound.external_id,
             )
             store_attachment(integration, inbound_file, file_message)
-        is_first_message = not Conversation.objects.filter(contact_id=contact.pk).exclude(
-            pk=conversation.pk
-        ).exists()
+        is_first_message = not Message.objects.filter(
+            conversation__contact=contact,
+            author_type=MessageAuthor.CONTACT,
+        ).exclude(pk=message.pk if not files_only else -1).exists()
+        has_verified_phone = identity.phone_verified_at is not None or (
+            ConnectionIdentity.objects.filter(
+                contact=contact,
+                phone_verified_at__isnull=False,
+            ).exists()
+        )
         routing_decision = route_inbound_conversation(
             channel=channel,
             contact=contact,

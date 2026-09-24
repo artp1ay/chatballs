@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from chatballs.channels.models import Channel, RuleActionTarget
+from chatballs.channels.models import Channel
 from chatballs.channels.rules.actions import apply_routing_decision
 from chatballs.channels.rules.context import RoutingContext
 from chatballs.channels.rules.engine import evaluate_routing
@@ -23,7 +23,7 @@ def route_inbound_conversation(
     has_verified_phone: bool,
     current_time: datetime,
     has_active_ai_agent: bool | None = None,
-) -> RouteDecision:
+) -> RouteDecision | None:
     """Вычисляет и применяет маршрут в уже сохранённом диалоге."""
 
     if has_active_ai_agent is None:
@@ -31,6 +31,7 @@ def route_inbound_conversation(
         has_active_ai_agent = bool(agent and agent.is_active)
     if conversation.control_mode == ControlMode.HUMAN:
         return None
+    # Правила вычисляются только для автоматических диалогов.
     context = RoutingContext(
         channel=channel,
         contact=contact,
@@ -43,11 +44,6 @@ def route_inbound_conversation(
         is_first_message=is_first_message,
     )
     decision = evaluate_routing(context)
-    if (
-        conversation.control_mode == ControlMode.HUMAN
-        and decision.target != RuleActionTarget.DROP_SILENTLY
-    ):
-        return decision
     fields = apply_routing_decision(
         conversation,
         decision,

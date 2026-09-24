@@ -29,10 +29,7 @@ def apply_routing_decision(
     """Меняет поля маршрутизации и возвращает их для одного save()."""
 
     target = RuleActionTarget(decision.target)
-    if (
-        conversation.control_mode == ControlMode.HUMAN
-        and target != RuleActionTarget.DROP_SILENTLY
-    ):
+    if conversation.control_mode == ControlMode.HUMAN:
         return ()
     channel = channel or conversation.channel
     now = now or timezone.now()

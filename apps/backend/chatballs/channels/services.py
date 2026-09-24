@@ -9,7 +9,7 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 
 from chatballs.channels import authorization
-from chatballs.channels.models import Channel
+from chatballs.channels.models import Channel, ChannelRoutingMode
 from chatballs.i18n import t
 from chatballs.identity.group_models import EmployeeGroup
 from chatballs.integrations.models import Integration, IntegrationKind
@@ -68,6 +68,7 @@ class ChannelUpdate:
     name: Any = UNSET
     group_id: Any = UNSET
     is_active: Any = UNSET
+    routing_mode: Any = UNSET
     policy: dict[str, bool] = field(default_factory=dict)
 
 
@@ -78,6 +79,15 @@ def _clean_name(raw: object) -> str:
     if len(name) > NAME_MAX_LENGTH:
         raise ValidationError({"name": t("channels.name_too_long")})
     return name
+
+
+def _clean_routing_mode(value: object) -> str:
+    try:
+        return ChannelRoutingMode(str(value))
+    except (TypeError, ValueError) as error:
+        raise ValidationError(
+            {"routing_mode": "Недопустимый режим маршрутизации"}
+        ) from error
 
 
 def _group_for_channel(
@@ -110,6 +120,8 @@ def update_channel(
 
     if update.name is not UNSET:
         authorization.require_channel_manage(context)
+    if update.routing_mode is not UNSET:
+        authorization.require_channel_manage(context)
     if update.group_id is not UNSET and update.group_id != locked.group_id:
         authorization.require_channel_manage(context)
     if update.is_active is not UNSET and update.is_active != locked.is_active:
@@ -133,6 +145,11 @@ def update_channel(
     if update.is_active is not UNSET and update.is_active != locked.is_active:
         locked.is_active = bool(update.is_active)
         changed.append("is_active")
+    if update.routing_mode is not UNSET:
+        routing_mode = _clean_routing_mode(update.routing_mode)
+        if routing_mode != locked.routing_mode:
+            locked.routing_mode = routing_mode
+            changed.append("routing_mode")
     for name, value in update.policy.items():
         if getattr(locked, name) != value:
             setattr(locked, name, value)

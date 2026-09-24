@@ -144,14 +144,6 @@ class ChannelRoutingRule(TenantRelationModel):
                 condition=models.Q(priority__range=(1, 1000)),
                 name="routing_rule_priority_range",
             ),
-            models.CheckConstraint(
-                condition=(
-                    models.Q(action_target=RuleActionTarget.ASSIGN_GROUP)
-                    & models.Q(target_group__isnull=False)
-                )
-                | ~models.Q(action_target=RuleActionTarget.ASSIGN_GROUP),
-                name="routing_rule_assign_group",
-            ),
         ]
 
     def __str__(self) -> str:

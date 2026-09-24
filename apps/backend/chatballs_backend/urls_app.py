@@ -36,6 +36,10 @@ urlpatterns = [
         include("chatballs.ai.agent_card_urls"),
     ),
     path(
+        "api/v1/organizations/<uuid:organization_public_id>/channels/",
+        include("chatballs.channels.urls"),
+    ),
+    path(
         "api/v1/organizations/<uuid:organization_public_id>/integrations/",
         include("chatballs.integrations.urls"),
     ),
