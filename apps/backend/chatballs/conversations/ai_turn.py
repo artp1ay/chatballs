@@ -33,6 +33,7 @@ from chatballs.conversations.models import (
     AiTurnState,
     ControlMode,
     Conversation,
+    LifecycleState,
     Message,
     MessageAuthor,
     MessageKind,
@@ -70,6 +71,8 @@ class Turn:
     message: Message
     conversation: Conversation
     agent: AIAgent
+    agent_id: int
+    agent_lifecycle_version: int
     user_id: str
     query: str
     history: list[dict]
@@ -89,25 +92,52 @@ def request_ai_turn(
     context: TenantContext,
     is_new_conversation: bool = False,
 ) -> None:
-    """Шаг в транзакции приёма: пометить сообщение и поставить ход в очередь."""
+    """Атомарно поставить ход в очередь, если диалог всё ещё ведёт AI."""
 
-    message.ai_turn_state = AiTurnState.PENDING
-    message.save(update_fields=["ai_turn_state"])
-    enqueue_event(
-        DomainEvent(
-            aggregate_type=AGGREGATE_TYPE,
-            aggregate_id=str(message.conversation_id),
-            event_type=AI_TURN_REQUESTED,
-            payload={
-                "messageId": message.id,
-                "userId": user_id,
-                # Про новый диалог операторов уже позвали при приёме: второй
-                # оклик из-за нерасшифрованного голосового был бы лишним.
-                "isNewConversation": is_new_conversation,
-            },
-            tenant_context=context,
+    with tenant_atomic(context):
+        locked = ai_turn_result.lock_turn_for_start(
+            message_id=message.pk,
+            context=context,
         )
-    )
+        if locked is None:
+            return
+        conversation, current_message = locked
+        agent = getattr(conversation.channel, "ai_agent", None)
+        if (
+            conversation.lifecycle != LifecycleState.OPEN
+            or conversation.control_mode != ControlMode.AI
+            or agent is None
+            or not agent.is_active
+        ):
+            if current_message.ai_turn_state in (
+                AiTurnState.NONE,
+                AiTurnState.PENDING,
+                AiTurnState.RUNNING,
+            ):
+                current_message.ai_turn_state = AiTurnState.DONE
+                current_message.save(update_fields=["ai_turn_state"])
+            return
+
+        # Не возвращаем завершённый или уже выполняющийся ход в PENDING.
+        if current_message.ai_turn_state != AiTurnState.NONE:
+            return
+        current_message.ai_turn_state = AiTurnState.PENDING
+        current_message.save(update_fields=["ai_turn_state"])
+        enqueue_event(
+            DomainEvent(
+                aggregate_type=AGGREGATE_TYPE,
+                aggregate_id=str(conversation.id),
+                event_type=AI_TURN_REQUESTED,
+                payload={
+                    "messageId": current_message.id,
+                    "userId": user_id,
+                    # Про новый диалог операторов уже позвали при приёме: второй
+                    # оклик из-за нерасшифрованного голосового был бы лишним.
+                    "isNewConversation": is_new_conversation,
+                },
+                tenant_context=context,
+            )
+        )
 
 
 def conversation_is_thinking(conversation_id: int) -> bool:
@@ -182,6 +212,8 @@ def _begin(*, message_id: int, user_id: str, is_new: bool, context: TenantContex
         message=message,
         conversation=conversation,
         agent=agent,
+        agent_id=agent.id,
+        agent_lifecycle_version=agent.lifecycle_version,
         user_id=user_id,
         query=message.text or message.transcript,
         history=_history(conversation, agent.history_limit or HISTORY_LIMIT_DEFAULT),
@@ -222,6 +254,10 @@ def _run_transcription(turn: Turn) -> str:
 def _apply_transcript(*, turn: Turn, transcript: str, context: TenantContext) -> bool:
     """Шаг в транзакции: сохранить стенограмму. False — хода не будет."""
 
+    # Внешняя транскрипция завершилась после возможного перехвата. Сначала
+    # блокируем и проверяем актуальный ход, затем меняем входящее сообщение.
+    if not ai_turn_result.lock_active_turn(turn=turn, context=context):
+        return False
     if not transcript.strip():
         mark_transcription_failed(turn.message)
         ai_turn_result.store_voice_without_transcript(turn=turn, context=context)

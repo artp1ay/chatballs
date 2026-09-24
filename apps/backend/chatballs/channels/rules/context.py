@@ -114,7 +114,7 @@ def _contains_overnight_start(interval: object, current_minutes: int) -> bool:
     end = _minutes(interval.get("end"))
     if start is None or end is None or start <= end:
         return False
-    return current_minutes >= start
+    return start <= current_minutes < 1_440
 
 
 def _contains_overnight(interval: object, current_minutes: int) -> bool:

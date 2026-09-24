@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING
 
 from django.utils import timezone
 
+from chatballs.ai.models import AIAgent
 from chatballs.ai.runtime import HANDOFF_TOKEN
 from chatballs.conversations.models import (
     AiTurnState,
@@ -76,7 +77,10 @@ def lock_turn_for_start(
     """Заблокировать диалог и входящее сообщение перед запуском хода."""
 
     message_ref = (
-        Message.objects.filter(id=message_id)
+        Message.objects.filter(
+            id=message_id,
+            organization_id=context.organization_id,
+        )
         .values("conversation_id")
         .first()
     )
@@ -89,13 +93,13 @@ def lock_turn_for_start(
     )
 
 
-def _lock_active_turn(*, turn: Turn, context: TenantContext) -> bool:
+def lock_active_turn(*, turn: Turn, context: TenantContext) -> bool:
     """Перечитать и заблокировать ход перед записью результата.
 
     Снимок ``turn`` сделан до обращения к модели, поэтому после него нельзя
-    принимать решение по старому диалогу. Блокировка диалога и сообщения делает
-    проверку и запись одной атомарной операцией: перехват оператора либо ждёт
-    финализацию, либо отменяет её.
+    принимать решение по старому диалогу. Блокировка диалога, сообщения и агента
+    делает проверку и запись одной атомарной операцией: перехват оператора либо
+    ждёт финализацию, либо отменяет её.
     """
 
     locked = _lock_turn_rows(
@@ -124,6 +128,24 @@ def _lock_active_turn(*, turn: Turn, context: TenantContext) -> bool:
         )
         return False
 
+    agent = (
+        AIAgent.objects.select_for_update()
+        .filter(pk=turn.agent_id, organization_id=context.organization_id)
+        .first()
+    )
+    if (
+        agent is None
+        or not agent.is_active
+        or agent.lifecycle_version != turn.agent_lifecycle_version
+    ):
+        if message.ai_turn_state in (AiTurnState.PENDING, AiTurnState.RUNNING):
+            _finish(message, AiTurnState.DONE)
+        logger.info(
+            "Устаревший результат AI для сообщения %s: агент изменился или отключён",
+            message.id,
+        )
+        return False
+
     # Все последующие записи используют уже заблокированные актуальные строки,
     # а не снимок, оставшийся после внешнего вызова.
     turn.conversation = conversation
@@ -137,7 +159,7 @@ def store_answer(*, turn: Turn, context: TenantContext, text: str) -> str | None
     ``None`` означает, что результат устарел: диалог уже не ведёт AI или ход
     завершён. В таком случае не меняются сообщения, очередь и режим диалога.
     """
-    if not _lock_active_turn(turn=turn, context=context):
+    if not lock_active_turn(turn=turn, context=context):
         return None
 
     conversation = turn.conversation
@@ -186,7 +208,7 @@ def store_voice_without_transcript(*, turn: Turn, context: TenantContext) -> Non
     ответит человек. Если оператор уже перехватил диалог, состояние хода только
     закрывается, без изменения очереди.
     """
-    if not _lock_active_turn(turn=turn, context=context):
+    if not lock_active_turn(turn=turn, context=context):
         return
 
     conversation = turn.conversation
@@ -220,7 +242,7 @@ def store_failure(*, turn: Turn, context: TenantContext, error: object) -> str |
     просроченный в очереди. ``None`` означает устаревший результат, который
     уже нельзя показывать клиенту или записывать в перехваченный диалог.
     """
-    if not _lock_active_turn(turn=turn, context=context):
+    if not lock_active_turn(turn=turn, context=context):
         return None
 
     conversation = turn.conversation

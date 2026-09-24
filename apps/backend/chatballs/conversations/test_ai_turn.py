@@ -9,7 +9,7 @@ from chatballs.ai.provider.base import ChatResult
 from chatballs.ai.runtime import HANDOFF_TOKEN
 from chatballs.ai.turn import TurnAnswer
 from chatballs.channels.models import Channel
-from chatballs.conversations.ai_turn import AI_TURN_REQUESTED
+from chatballs.conversations.ai_turn import AI_TURN_REQUESTED, request_ai_turn
 from chatballs.conversations.ingest import ingest_inbound
 from chatballs.conversations.models import (
     AiTurnState,
@@ -159,6 +159,56 @@ class AiTurnQueueTests(TestCase):
 
         self.assertFalse(self._ai_messages().exists())
         self.assertEqual(self._inbound_message().ai_turn_state, AiTurnState.DONE)
+
+    def test_request_after_operator_claim_does_not_requeue_old_message(self) -> None:
+        with mock.patch("chatballs.conversations.ingest.request_ai_turn"):
+            ingest_inbound(self.integration, self.inbound)
+
+        message = self._inbound_message()
+        conversation = self.channel.conversations.get()
+        owner = HumanUser.objects.get(email="owner@example.com")
+        context = tenant_context_for(owner, self.organization)
+        claim_conversation(context=context, conversation_id=conversation.id)
+
+        request_ai_turn(message=message, user_id="u-1", context=context)
+
+        message.refresh_from_db()
+        self.assertEqual(message.ai_turn_state, AiTurnState.DONE)
+        self.assertFalse(OutboxEvent.objects.filter(event_type=AI_TURN_REQUESTED).exists())
+        self.assertEqual(run_pending_ai_turns(), 0)
+        conversation.refresh_from_db()
+        self.assertEqual(conversation.control_mode, ControlMode.HUMAN)
+
+    def test_agent_disabled_during_model_call_cancels_result(self) -> None:
+        def answer_after_disable(_plan):
+            agent = AIAgent.objects.get(channel=self.channel)
+            agent.status = AIAgentStatus.DISABLED
+            agent.lifecycle_version += 1
+            agent.save(update_fields=["status", "lifecycle_version"])
+            return TurnAnswer(
+                result=ChatResult(
+                    text="Ответ отключённого агента",
+                    model="test",
+                    prompt_tokens=1,
+                    completion_tokens=1,
+                )
+            )
+
+        with (
+            mock.patch("chatballs.conversations.ai_turn.run_turn_chat", side_effect=answer_after_disable),
+            mock.patch(
+                "chatballs.conversations.transports.send_reply", return_value=True
+            ) as send,
+        ):
+            ingest_inbound(self.integration, self.inbound)
+            self.assertEqual(run_pending_ai_turns(), 1)
+
+        conversation = self.channel.conversations.get()
+        self.assertFalse(self._ai_messages().exists())
+        send.assert_not_called()
+        self.assertEqual(self._inbound_message().ai_turn_state, AiTurnState.DONE)
+        self.assertEqual(conversation.control_mode, ControlMode.AI)
+        self.assertEqual(conversation.expected_responder, ExpectedResponder.AI)
 
     def test_result_returned_after_operator_claim_is_discarded(self) -> None:
         """Перехват во время внешнего вызова отменяет уже готовый ответ AI."""

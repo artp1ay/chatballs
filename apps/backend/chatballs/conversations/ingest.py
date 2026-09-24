@@ -41,7 +41,6 @@ from chatballs.conversations.models import (
 from chatballs.conversations.queue import QUEUE_FIELDS, enter_queue
 from chatballs.conversations.transports.base import InboundMessage
 from chatballs.events.models import EventOwnership, InboxEvent
-from chatballs.integrations.models import Integration
 from chatballs.tenancy.context import TenantContext
 
 logger = logging.getLogger(__name__)
