@@ -213,20 +213,20 @@
    организаций, только на месте значка — пунктирная плитка с плюсом, как у
    «пустого» слота. Ничего залитого: строка читается как действие, а не как
    ещё одна организация, и не спорит с отмеченной текущей. */
-.app-dropdown .app-menu-item button.hub-brand-add,
-.app-dropdown button.hub-brand-add {
+.app-dropdown .app-menu-item.hub-brand-add,
+.app-dropdown .app-dropdown-item-button.hub-brand-add {
   color: var(--n-3);
 }
 
-.app-dropdown .app-menu-item button.hub-brand-add:hover,
-.app-dropdown button.hub-brand-add:hover {
+.app-dropdown .app-menu-item.hub-brand-add:hover,
+.app-dropdown .app-dropdown-item-button.hub-brand-add:hover {
   color: var(--primary-text);
 }
 
 /* Селектор длиннее общего «button span { display: block }» из menu.css:
    иначе плюс прижимается к левому верхнему углу плитки. */
-.app-dropdown .app-menu-item button .hub-brand-add-icon,
-.app-dropdown button .hub-brand-add-icon {
+.app-dropdown .app-menu-item .hub-brand-add-icon,
+.app-dropdown .app-dropdown-item-button .hub-brand-add-icon {
   width: 17px;
   height: 17px;
   display: inline-flex;
@@ -243,8 +243,8 @@
   display: block;
 }
 
-.app-dropdown .app-menu-item button.hub-brand-add:hover .hub-brand-add-icon,
-.app-dropdown button.hub-brand-add:hover .hub-brand-add-icon {
+.app-dropdown .app-menu-item.hub-brand-add:hover .hub-brand-add-icon,
+.app-dropdown .app-dropdown-item-button.hub-brand-add:hover .hub-brand-add-icon {
   color: var(--primary-text);
   border-color: var(--primary);
 }

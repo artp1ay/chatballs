@@ -373,7 +373,7 @@ test.describe("Гибкая маршрутизация канала", () => {
     await modal.getByRole("button", { name: "Куда направить" }).click();
     const actionMenu = page.locator(".app-dropdown").filter({ hasText: "Направить в очередь операторов" });
     await expect(actionMenu).toBeVisible();
-    await actionMenu.getByRole("button", { name: "Направить в очередь операторов" }).click();
+    await actionMenu.getByRole("menuitem", { name: "Направить в очередь операторов" }).click();
     await modal.getByTestId("save-rule-button").click();
 
     await expect.poll(() => state.rules.length).toBe(1);

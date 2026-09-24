@@ -92,7 +92,17 @@ export function VideoCallOverlay(props: Props) {
   };
 
   return (
-    <ConstaModal open={props.open} onCancel={() => void endAndClose()} footer={null} closable={false} width={428} className="call-modal" destroyOnHidden>
+    <ConstaModal
+      open={props.open}
+      onCancel={() => void endAndClose()}
+      ariaLabel={t("settings.video_calls")}
+      footer={null}
+      closable={false}
+      width={428}
+      className="call-modal"
+      bodyClassName="app-modal-body-flush"
+      destroyOnHidden
+    >
       <CallView
         mode={mode}
         peerName={props.dialog.name}

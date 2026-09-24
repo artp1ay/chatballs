@@ -9,7 +9,19 @@ import { t } from "../../i18n";
 
 export function ImageLightbox({ open, url, downloadUrl, name, size, onClose }: { open: boolean; url: string; downloadUrl: string; name: string; size?: number; onClose: () => void }) {
   return (
-    <ConstaModal open={open} onCancel={onClose} footer={null} closable={false} centered width="auto" className="image-lightbox" rootClassName="image-lightbox-root" destroyOnHidden>
+    <ConstaModal
+      open={open}
+      onCancel={onClose}
+      ariaLabel={name || t("common.photo")}
+      footer={null}
+      closable={false}
+      centered
+      width="auto"
+      className="image-lightbox"
+      rootClassName="image-lightbox-root"
+      bodyClassName="app-modal-body-flush"
+      destroyOnHidden
+    >
       <div className="image-lightbox-bar">
         <span className="image-lightbox-name" title={name}>{name}</span>
         {size ? <span className="image-lightbox-size">{formatSize(size)}</span> : null}

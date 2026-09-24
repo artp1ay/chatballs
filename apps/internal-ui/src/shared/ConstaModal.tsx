@@ -1,10 +1,11 @@
 import { Card } from "@consta/uikit/Card";
 import { Modal } from "@consta/uikit/Modal";
-import { useId, type CSSProperties, type HTMLAttributes, type ReactNode } from "react";
+import { useCallback, useId, type CSSProperties, type HTMLAttributes, type ReactNode } from "react";
 
 import { t } from "../i18n";
 import { Button } from "./ui-controls";
 import { Icon } from "./icons";
+import { useModalLayer } from "./useModalLayer";
 
 type ModalButtonProps = {
   className?: string;
@@ -30,6 +31,8 @@ export type ConstaModalProps = NativeModalProps & {
   open?: boolean;
   isOpen?: boolean;
   title?: ReactNode;
+  ariaLabel?: string;
+  bodyClassName?: string;
   footer?: ReactNode;
   onCancel?: () => void;
   onClose?: () => void;
@@ -47,6 +50,7 @@ export type ConstaModalProps = NativeModalProps & {
   keyboard?: boolean;
   destroyOnClose?: boolean;
   destroyOnHidden?: boolean;
+  afterClose?: () => void;
   children?: ReactNode;
 };
 
@@ -54,6 +58,8 @@ export function ConstaModal({
   open,
   isOpen,
   title,
+  ariaLabel,
+  bodyClassName,
   footer,
   onCancel,
   onClose,
@@ -69,16 +75,23 @@ export function ConstaModal({
   closable = true,
   maskClosable = true,
   keyboard = true,
-  destroyOnClose: _destroyOnClose,
-  destroyOnHidden: _destroyOnHidden,
+  destroyOnClose = false,
+  destroyOnHidden = false,
+  afterClose,
   children,
   ...rest
 }: ConstaModalProps) {
   const titleId = useId();
+  const layerId = `modal-${titleId}`;
   const visible = open ?? isOpen ?? false;
   const close = onCancel ?? onClose;
   const hasTitle = title !== undefined && title !== null;
   const hasDefaultFooter = Boolean(onOk && (okText || okText === ""));
+  const shouldRenderContent = visible || !(destroyOnClose || destroyOnHidden);
+  const { isTopmost, modalRef } = useModalLayer(visible, layerId);
+  const requestClose = useCallback(() => {
+    if (visible && isTopmost) close?.();
+  }, [close, isTopmost, visible]);
   const modalStyle: CSSProperties = {
     ...style,
     ...(typeof width === "number" ? { width } : {}),
@@ -87,61 +100,67 @@ export function ConstaModal({
   return (
     <Modal
       {...rest}
+      ref={modalRef}
       className={`app-modal-window ${className ?? ""}`.trim()}
       rootClassName={rootClassName}
       isOpen={visible}
-      onClose={close}
-      onClickOutside={maskClosable ? close : undefined}
-      onEsc={keyboard ? close : undefined}
+      hasOverlay
+      afterClose={afterClose}
+      onClickOutside={maskClosable && isTopmost ? requestClose : undefined}
+      onEsc={keyboard && isTopmost ? requestClose : undefined}
       role={rest.role ?? "dialog"}
+      tabIndex={rest.tabIndex ?? -1}
       aria-modal={rest["aria-modal"] ?? true}
+      aria-label={rest["aria-label"] ?? ariaLabel}
       aria-labelledby={rest["aria-labelledby"] ?? (hasTitle ? titleId : undefined)}
       position={centered ? "center" : "top"}
       width="auto"
       style={modalStyle}
     >
-      <Card className="app-modal-card" shadow={false}>
-        {hasTitle && (
-          <header className="app-modal-header">
-            <div className="app-modal-title" id={titleId}>
-              {title}
+      {shouldRenderContent && (
+        <Card className="app-modal-card" shadow={false}>
+          {hasTitle && (
+            <header className="app-modal-header">
+              <div className="app-modal-title" id={titleId}>
+                {title}
+              </div>
+              {closable && close && (
+                <button
+                  aria-label={t("common.close")}
+                  className="app-modal-close"
+                  title={t("common.close")}
+                  type="button"
+                  onClick={requestClose}
+                >
+                  <Icon name="close" size={16} />
+                </button>
+              )}
+            </header>
+          )}
+          <div className={`app-modal-body ${bodyClassName ?? ""}`.trim()}>{children}</div>
+          {(footer !== null && (footer !== undefined || hasDefaultFooter)) && (
+            <div className="app-modal-footer">
+              {footer ?? (
+                <>
+                  {close && cancelText && (
+                    <Button variant="secondary" onClick={requestClose}>{cancelText}</Button>
+                  )}
+                  {onOk && (
+                    <Button
+                      variant={okButtonProps?.danger ? "danger-outline" : "primary"}
+                      className={okButtonProps?.className}
+                      disabled={okButtonProps?.disabled}
+                      onClick={onOk}
+                    >
+                      {okText}
+                    </Button>
+                  )}
+                </>
+              )}
             </div>
-            {closable && close && (
-              <button
-                aria-label={t("common.close")}
-                className="app-modal-close"
-                title={t("common.close")}
-                type="button"
-                onClick={close}
-              >
-                <Icon name="close" size={16} />
-              </button>
-            )}
-          </header>
-        )}
-        <div className="app-modal-body">{children}</div>
-        {(footer !== null && (footer !== undefined || hasDefaultFooter)) && (
-          <div className="app-modal-footer">
-            {footer ?? (
-              <>
-                {close && cancelText && (
-                  <Button variant="secondary" onClick={close}>{cancelText}</Button>
-                )}
-                {onOk && (
-                  <Button
-                    variant={okButtonProps?.danger ? "danger-outline" : "primary"}
-                    className={okButtonProps?.className}
-                    disabled={okButtonProps?.disabled}
-                    onClick={onOk}
-                  >
-                    {okText}
-                  </Button>
-                )}
-              </>
-            )}
-          </div>
-        )}
-      </Card>
+          )}
+        </Card>
+      )}
     </Modal>
   );
 }

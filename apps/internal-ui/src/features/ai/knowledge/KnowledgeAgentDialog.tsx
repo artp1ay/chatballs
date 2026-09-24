@@ -62,7 +62,18 @@ export function KnowledgeAgentDialog({
   const applied = items.length - skips.length;
 
   return (
-    <ConstaModal className="knowledge-agent-dialog" open width={560} title={null} footer={null} closable={false} onCancel={onCancel} destroyOnHidden>
+    <ConstaModal
+      className="knowledge-agent-dialog"
+      open
+      width={560}
+      title={null}
+      ariaLabel={mode === "attach" ? t("ai.attach_agent") : t("ai.detach_from_agent")}
+      footer={null}
+      closable={false}
+      onCancel={onCancel}
+      bodyClassName="app-modal-body-flush"
+      destroyOnHidden
+    >
       <header className="knowledge-agent-dialog-head">
         <div className="knowledge-agent-dialog-title">
           <div>

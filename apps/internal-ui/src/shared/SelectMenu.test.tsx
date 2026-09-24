@@ -2,12 +2,12 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@consta/uikit/ContextMenu", () => ({
-  ContextMenu: ({ isOpen, items, className, getItemLabel, getItemLeftSide }: any) => {
+  ContextMenu: ({ isOpen, items, className, getItemLabel, getItemLeftSide, getItemAttributes }: any) => {
     if (!isOpen) return null;
     return (
       <div className={`ContextMenu ${className ?? ""}`} role="menu">
         {items.map((item: any) => (
-          <div key={item.key} className={`ContextMenuItem ${item.selected ? "is-selected" : ""}`}>
+          <div key={item.key} {...(getItemAttributes?.(item) ?? {})}>
             {getItemLeftSide?.(item)}
             <span>{getItemLabel ? getItemLabel(item) : item.label}</span>
           </div>
@@ -59,6 +59,8 @@ describe("SelectMenu", () => {
     expect(html).toContain("ContextMenu");
     expect(html).toContain("Активные");
     expect(html).toContain("is-selected");
+    expect(html).toContain('role="menuitem"');
+    expect(html).toContain('type="button"');
     expect(html).toContain('style="background:#10b981"');
   });
 

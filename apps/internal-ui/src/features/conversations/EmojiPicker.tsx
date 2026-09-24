@@ -23,8 +23,9 @@ export function EmojiPicker({ onPick, disabled }: { onPick: (emoji: string) => v
       placement="topLeft"
       overlayClassName="app-dropdown composer-emoji"
       disabled={disabled}
+      popupRole="listbox"
       popupRender={() => (
-        <div className="ant-dropdown-menu composer-emoji-grid" role="listbox" aria-label={t("common.emoji")}>
+        <div className="composer-emoji-grid" role="presentation">
           {EMOJI.map((emoji) => (
             <button
               key={emoji}

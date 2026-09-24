@@ -6,9 +6,12 @@
 
 /* Геометрия по дизайн-базлайну v2 (кадр C, меню ⋯): 220px, отступ 5,
    скругление 10, пункты 33px r7, разделитель n-9. */
+.app-dropdown.app-dropdown-menu,
+.app-dropdown.ContextMenuLevel_Desktop,
 .app-dropdown .app-dropdown-menu,
 .app-dropdown .ContextMenu {
-  width: 220px;
+  box-sizing: border-box;
+  width: 220px !important;
   padding: 5px;
   background: var(--surface-card);
   border: 1px solid var(--n-8);
@@ -22,16 +25,20 @@
   background: var(--n-9);
 }
 
+.app-dropdown.is-wide.app-dropdown-menu,
+.app-dropdown.is-wide.ContextMenuLevel_Desktop,
 .app-dropdown.is-wide .app-dropdown-menu,
 .app-dropdown.is-wide .ContextMenu {
-  width: 216px;
+  width: 216px !important;
 }
 
 /* Меню селекта в форме: ширину задаёт поле, ширина приходит инлайном на
    оверлей — фиксированные 216px фильтра здесь были бы уже или шире поля. */
+.app-dropdown.is-field.app-dropdown-menu,
+.app-dropdown.is-field.ContextMenuLevel_Desktop,
 .app-dropdown.is-field .app-dropdown-menu,
 .app-dropdown.is-field .ContextMenu {
-  width: 100%;
+  width: var(--select-menu-overlay-width, 100%) !important;
 }
 
 /* Текущее значение в одиночном селекте: подсветка вместо галочки. */
@@ -42,16 +49,20 @@
   font-weight: 600;
 }
 
+.app-dropdown.is-channels-menu.app-dropdown-menu,
+.app-dropdown.is-channels-menu.ContextMenuLevel_Desktop,
 .app-dropdown.is-channels-menu .app-dropdown-menu,
 .app-dropdown.is-channels-menu .ContextMenu {
-  width: 246px;
+  width: 246px !important;
 }
 
 /* Меню строки сотрудника (дизайн-базлайн v2, кадр E2): 246px, отступ 6,
    пункты 32px, тень глубже — карточка перекрывает таблицу. */
+.app-dropdown.is-employee-menu.app-dropdown-menu,
+.app-dropdown.is-employee-menu.ContextMenuLevel_Desktop,
 .app-dropdown.is-employee-menu .app-dropdown-menu,
 .app-dropdown.is-employee-menu .ContextMenu {
-  width: 246px;
+  width: 246px !important;
   padding: 6px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
 }
@@ -107,6 +118,7 @@
 }
 
 .app-dropdown .app-menu-item-disabled button,
+.app-dropdown .app-menu-item[aria-disabled="true"],
 .app-dropdown .app-menu-item[aria-disabled="true"] button,
 .app-dropdown .app-menu-item[aria-disabled="true"] .app-dropdown-item-button {
   color: var(--n-5);
@@ -114,6 +126,7 @@
 }
 
 .app-dropdown .app-menu-item-disabled button.danger,
+.app-dropdown .app-menu-item[aria-disabled="true"].danger,
 .app-dropdown .app-menu-item[aria-disabled="true"] button.danger,
 .app-dropdown .app-menu-item-disabled button.danger small,
 .app-dropdown .app-menu-item[aria-disabled="true"] button.danger small {
@@ -159,32 +172,17 @@
   outline-offset: 2px;
 }
 
-/* SelectMenu и FilterDropdown используют ContextMenu. Сохраняется тот же ритм меню
-   на классах ListItem/ContextMenuWrapper. */
-.app-dropdown.ContextMenuWrapper {
-  width: 220px !important;
-}
-
-.app-dropdown.ContextMenuWrapper.is-wide {
-  width: 216px !important;
-}
-
-.app-dropdown.ContextMenuWrapper.is-pager-size {
-  width: 108px !important;
-}
-
-.app-dropdown.ContextMenuWrapper.is-field,
-.app-dropdown.ContextMenuWrapper.has-overlay-width {
+/* SelectMenu и FilterDropdown используют реальный desktop-класс Consta. */
+.app-dropdown.has-overlay-width.ContextMenuLevel_Desktop {
   width: var(--select-menu-overlay-width, 240px) !important;
 }
 
-.app-dropdown.ContextMenuWrapper .ContextMenuLevel-Desktop,
-.app-dropdown.ContextMenuWrapper .ListBox {
+.app-dropdown.ContextMenuLevel_Desktop .ListBox {
   width: 100% !important;
   max-height: min(360px, calc(100vh - 32px));
 }
 
-.app-dropdown.ContextMenuWrapper .ListItem {
+.app-dropdown.ContextMenuLevel_Desktop .ListItem {
   width: 100%;
   min-height: 33px;
   padding: 8px 10px;
@@ -200,22 +198,22 @@
   cursor: pointer;
 }
 
-.app-dropdown.ContextMenuWrapper .ListItem:hover {
+.app-dropdown.ContextMenuLevel_Desktop .ListItem:hover {
   background: var(--n-9);
 }
 
-.app-dropdown.ContextMenuWrapper .ListItem.is-selected,
-.app-dropdown.ContextMenuWrapper .ListItem_checked {
+.app-dropdown.ContextMenuLevel_Desktop .ListItem.is-selected,
+.app-dropdown.ContextMenuLevel_Desktop .ListItem_checked {
   color: var(--primary-text);
   background: var(--primary-bg);
   font-weight: 600;
 }
 
-.app-dropdown.ContextMenuWrapper .ListItem_checked::before {
+.app-dropdown.ContextMenuLevel_Desktop .ListItem_checked::before {
   opacity: 0;
 }
 
-.app-dropdown.ContextMenuWrapper .ListItem:focus-visible {
+.app-dropdown.ContextMenuLevel_Desktop .ListItem:focus-visible {
   outline: 2px solid var(--primary-border);
   outline-offset: -2px;
 }
@@ -261,6 +259,17 @@
   cursor: not-allowed;
 }
 
+.app-consta-menu .app-menu-item:focus-visible,
+.app-consta-menu [role="separator"]:focus-visible,
+.app-consta-menu [role="presentation"]:focus-visible {
+  outline: 2px solid var(--primary-border);
+  outline-offset: -2px;
+}
+
+.app-menu-inline-control {
+  min-width: 0;
+}
+
 .app-consta-popover {
   overflow: visible;
   background: transparent;
@@ -269,5 +278,5 @@
 }
 
 .app-consta-popover .app-popover-content {
-  display: contents;
+  display: block;
 }

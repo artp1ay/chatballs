@@ -2,6 +2,7 @@ import { ContextMenu } from "@consta/uikit/ContextMenu";
 import { cloneElement, useCallback, useRef, type CSSProperties, type MouseEvent as ReactMouseEvent, type MouseEventHandler, type ReactElement, type ReactNode, type Ref, type RefObject } from "react";
 
 import { Icon } from "./icons";
+import { handleMenuNavigation, useMenuEscapeLayer } from "./menuNavigation";
 
 export type SelectOption = { value: string; label: string; dot?: string };
 
@@ -48,6 +49,7 @@ export function SelectMenu({ anchorRef, children, disabled = false, multiple = f
   overlayStyle?: CSSProperties;
   selected: string[];
 }) {
+  useMenuEscapeLayer(open);
   const ownAnchorRef = useRef<HTMLElement | null>(null);
   const menuAnchorRef = anchorRef ?? ownAnchorRef;
   const trigger = children as ReactElement<SelectTriggerProps>;
@@ -115,15 +117,21 @@ export function SelectMenu({ anchorRef, children, disabled = false, multiple = f
         role="menu"
         items={items}
         getItemKey={(item) => item.key}
-        getItemLabel={(item) => item.label}
+        getItemLabel={(item) => (
+          <span className={["app-menu-item", item.selected ? "is-selected" : ""].filter(Boolean).join(" ")}>
+            {item.label}
+          </span>
+        ) as unknown as string}
         getItemLeftSide={(item) => item.leftSide}
         getItemAs={() => "button" as const}
         getItemAttributes={(item) => ({
           type: "button",
-          className: item.selected ? "is-selected" : undefined,
+          role: "menuitem",
+          className: ["app-menu-item", item.selected ? "is-selected" : ""].filter(Boolean).join(" "),
           "aria-checked": multiple ? item.selected : undefined,
           "aria-pressed": !multiple ? item.selected : undefined,
         })}
+        onKeyDownCapture={handleMenuNavigation}
         onClickOutside={() => onOpenChange(false)}
         onEsc={() => onOpenChange(false)}
         onItemClick={(item) => {

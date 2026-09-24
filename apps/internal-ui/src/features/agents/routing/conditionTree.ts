@@ -24,7 +24,6 @@ export const CONDITION_OPERATOR_OPTIONS: ReadonlyArray<[ConditionOpKey, MessageK
   ["not_contains", "routing.op_not_contains"],
   ["contains_any", "routing.op_contains_any"],
   ["contains_all", "routing.op_contains_all"],
-  ["regex", "routing.op_regex_match"],
   ["regex_match", "routing.op_regex_match"],
 ];
 
@@ -34,7 +33,7 @@ const OPERATORS_BY_FIELD: Record<ConditionFieldKey, readonly ConditionOpKey[]> =
   "contact.has_phone": ["eq", "neq"],
   "contact.labels": ["contains", "not_contains", "contains_any", "contains_all"],
   "message.text_contains": ["contains", "not_contains", "contains_any", "contains_all"],
-  "message.regex_match": ["regex", "regex_match"],
+  "message.regex_match": ["regex_match"],
   "conversation.is_first_message": ["eq", "neq"],
 };
 

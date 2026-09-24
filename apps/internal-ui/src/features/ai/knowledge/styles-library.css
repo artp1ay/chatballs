@@ -928,9 +928,11 @@ button.knowledge-section-twist:hover {
 }
 
 /* Меню строки знания (кадр KB1): 244px, пункты 32px — как в макете. */
+.app-dropdown.is-knowledge-menu.app-dropdown-menu,
+.app-dropdown.is-knowledge-menu.ContextMenuLevel_Desktop,
 .app-dropdown.is-knowledge-menu .app-dropdown-menu,
 .app-dropdown.is-knowledge-menu .ContextMenu {
-  width: 244px;
+  width: 244px !important;
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.16);
 }
 

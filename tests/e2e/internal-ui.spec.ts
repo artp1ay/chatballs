@@ -363,7 +363,7 @@ test("ожидающее приглашение показано строкой 
   await expect(row.getByText("Оператор поддержки")).toBeVisible();
 
   await row.locator(".employees-row-menu").click();
-  await page.getByRole("button", { name: "Отправить приглашение ещё раз" }).click();
+  await page.getByRole("menuitem", { name: "Отправить приглашение ещё раз" }).click();
   await expect.poll(() => posted).toContain(`/api/v1/organizations/${ORGANIZATION_PUBLIC_ID}/employees/invitations/9/resend/`);
 });
 
@@ -443,7 +443,7 @@ test("ход установки показывается по шагам и пе
     json: { update: {
       currentVersion: "1.4.0", latestVersion: "1.5.0", latestName: "v1.5.0", latestNotes: "", latestPublishedAt: null,
       latestPageUrl: "", available: true, checkedAt: null, checkError: "", updaterOnline: true,
-      install: { version: "1.5.0", status: "RUNNING", message: "pulling", requestedAt: "2026-09-14T09:00:00Z", updatedAt: null },
+      install: { version: "1.5.0", status: "RUNNING", message: "pulling", requestedAt: new Date().toISOString(), updatedAt: null },
     } },
   }));
 
@@ -481,8 +481,8 @@ test("с несколькими организациями вход открыв
   // Переключатель (A1): в списке обе организации, текущая отмечена.
   await page.locator(".hub-brand-switch").click();
   const menu = page.locator(".app-dropdown");
-  await expect(menu.getByRole("button", { name: "Ателье Норд" })).toHaveClass(/is-checked/);
-  await menu.getByRole("button", { name: "Вторая организация" }).click();
+  await expect(menu.getByRole("menuitem", { name: "Ателье Норд" }).locator(".is-checked")).toBeVisible();
+  await menu.getByRole("menuitem", { name: "Вторая организация" }).click();
 
   await expect(page).toHaveURL(new RegExp(`/organizations/${SECOND_ORGANIZATION_PUBLIC_ID}/`));
   await expect(page.locator(".hub-brand-switch span")).toHaveText("Вторая организация");
@@ -553,14 +553,14 @@ test("владелец добавляет организацию из перек
 
   // В переключателе (A1) под списком организаций — «Добавить организацию».
   await page.locator(".hub-brand-switch").click();
-  await page.locator(".app-dropdown").getByRole("button", { name: "Добавить организацию" }).click();
+  await page.locator(".app-dropdown").getByRole("menuitem", { name: "Добавить организацию" }).click();
   await expect(page).toHaveURL(/\/organizations\/new$/);
   await expect(page.getByRole("heading", { name: "Новая организация" })).toBeVisible();
 
   await page.getByPlaceholder("Например, «Ателье Норд»").fill("Вторая компания");
   // Язык интерфейса — селект приложения, как часовой пояс.
   await page.getByRole("button", { name: "Язык интерфейса" }).click();
-  await page.locator(".app-dropdown.is-field .app-menu-item", { hasText: "English" }).click();
+  await page.getByRole("menu").getByRole("menuitem", { name: "English" }).click();
   await page.getByRole("button", { name: "Создать организацию" }).click();
 
   // Сразу в новой организации: адрес и переключатель показывают её.
@@ -579,8 +579,8 @@ test("сотрудник без прав менеджера не видит «Д
   await page.locator(".hub-brand-switch").click();
 
   const menu = page.locator(".app-dropdown");
-  await expect(menu.getByRole("button", { name: "Ателье Норд" })).toBeVisible();
-  await expect(menu.getByRole("button", { name: "Добавить организацию" })).toHaveCount(0);
+  await expect(menu.getByRole("menuitem", { name: "Ателье Норд" })).toBeVisible();
+  await expect(menu.getByRole("menuitem", { name: "Добавить организацию" })).toHaveCount(0);
 });
 
 test("интерфейс работает на минимальной поддерживаемой ширине 1024px", async ({ page }) => {
@@ -647,7 +647,7 @@ test("экран сотрудников: список, создание, кар�
   // Кандидатами могут быть только активные администраторы: сотрудника в списке
   // быть не должно.
   await transferDialog.getByRole("button", { name: "Новый владелец" }).click();
-  const candidates = page.locator(".app-dropdown.is-field .app-menu-item");
+  const candidates = page.getByRole("menu").getByRole("menuitem").filter({ hasText: "Анна Ким" });
   await expect(candidates).toHaveCount(1);
   await expect(candidates).toContainText("Анна Ким");
   await page.keyboard.press("Escape");

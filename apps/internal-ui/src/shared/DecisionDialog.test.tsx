@@ -2,13 +2,15 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@consta/uikit/Modal", () => ({
-  Modal: ({ children, isOpen, className, role, "aria-modal": ariaModal, "aria-labelledby": ariaLabelledby, style }: any) => {
+  Modal: ({ children, isOpen, className, role, tabIndex, "aria-modal": ariaModal, "aria-label": ariaLabel, "aria-labelledby": ariaLabelledby, style }: any) => {
     if (!isOpen) return null;
     return (
       <div
         className={`Modal ${className ?? ""}`}
         role={role}
+        tabIndex={tabIndex}
         aria-modal={ariaModal}
+        aria-label={ariaLabel}
         aria-labelledby={ariaLabelledby}
         style={style}
       >
@@ -62,6 +64,7 @@ describe("DecisionDialog", () => {
     expect(html).toContain("decision-dialog");
     expect(html).toContain("is-danger");
     expect(html).toContain('data-status="alert"');
+    expect(html).toContain('aria-label="Удалить диалог?"');
     expect(html).toContain("Удалить диалог?");
     expect(html).toContain("Действие необратимо");
     expect(html).toContain("Дополнительный контекст");

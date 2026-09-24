@@ -99,7 +99,9 @@
   color: var(--n-5);
 }
 
+.app-dropdown.is-pager-size.app-dropdown-menu,
+.app-dropdown.is-pager-size.ContextMenuLevel_Desktop,
 .app-dropdown.is-pager-size .app-dropdown-menu,
 .app-dropdown.is-pager-size .ContextMenu {
-  width: 108px;
+  width: 108px !important;
 }

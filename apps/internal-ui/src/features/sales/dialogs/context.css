@@ -1219,9 +1219,11 @@
 
 /* Меню полей блока «Диалог» (кадр G): 283px, пункты 33px r7, заголовок капсом,
    галочка у выбранного, подпись под списком. */
+.app-dropdown.ctx-menu.app-dropdown-menu,
+.app-dropdown.ctx-menu.ContextMenuLevel_Desktop,
 .app-dropdown.ctx-menu .app-dropdown-menu,
 .app-dropdown.ctx-menu .ContextMenu {
-  width: 283px;
+  width: 283px !important;
 }
 
 .app-dropdown.ctx-menu .app-menu-item button > span:not(.ctx-avatar-small):not(.ctx-avatar-empty):not(.sales-priority-bars),

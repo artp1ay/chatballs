@@ -89,16 +89,17 @@ export function normalizeItem(item: LegacyMenuItem, index: number): NormalizedMe
       }
     };
     action = disabled ? undefined : combinedAction;
-    normalizedLabel = (
-      <span className={joinClassName("app-dropdown-item-button", labelClassName)}>
-        {props.children}
-      </span>
-    );
+    normalizedLabel = cloneElement(label, {
+      type: "button",
+      disabled: disabled || props.disabled,
+      className: joinClassName("app-dropdown-item-button", labelClassName),
+      onClick: disabled ? undefined : combinedAction,
+    } as Partial<unknown>);
   } else if (custom) {
     labelClassName = isValidElement(label)
       ? ((label.props as { className?: string }).className ?? "")
       : "";
-    normalizedLabel = label;
+    normalizedLabel = <div className="app-menu-inline-control">{label}</div>;
   } else if (kind === "group") {
     normalizedLabel = <span className="app-menu-group-label">{label}</span>;
   } else {
@@ -110,8 +111,9 @@ export function normalizeItem(item: LegacyMenuItem, index: number): NormalizedMe
     );
   }
 
+  const { onClick: _ignoredOnClick, ...restItem } = item;
   const normalized: NormalizedMenuItem = {
-    ...item,
+    ...restItem,
     key,
     kind,
     label: normalizedLabel,

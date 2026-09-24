@@ -1,6 +1,7 @@
 import type {
   Key,
   MouseEvent as ReactMouseEvent,
+  MouseEventHandler,
   ReactElement,
   ReactNode,
   Ref,
@@ -16,14 +17,14 @@ export type LegacyMenuItem = {
   onClick?: (event: ReactMouseEvent<HTMLElement>) => void;
 };
 
-export type NormalizedMenuItem = LegacyMenuItem & {
+export type NormalizedMenuItem = Omit<LegacyMenuItem, "key" | "type" | "label" | "children" | "onClick"> & {
   key: string;
   kind: "item" | "group" | "divider";
   label: ReactNode;
   className: string;
   custom: boolean;
   disabled: boolean;
-  action?: (event: ReactMouseEvent<any>) => void;
+  action?: MouseEventHandler<HTMLElement>;
   subMenu?: NormalizedMenuItem[];
 };
 
@@ -60,6 +61,7 @@ export type ConstaMenuProps = {
   disabled?: boolean;
   placement?: MenuPlacement;
   overlayClassName?: string;
-  trigger?: Array<"click" | "contextMenu" | "hover">;
+  trigger?: Array<"click" | "contextMenu">;
   popupRender?: () => ReactNode;
+  popupRole?: "menu" | "listbox" | "dialog";
 };

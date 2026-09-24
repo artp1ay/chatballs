@@ -139,8 +139,8 @@
 .decision-dialog.is-warning .decision-dialog-footer { padding-inline: 24px; }
 
 /* Общая карточка специализированных диалогов на Consta UI Modal. Внутренние
-   классы сохраняют совместимость со стилями существующих экранов, а сама
-   открытая/закрытая оболочка и фокус остаются у Consta. */
+   классы сохраняют совместимость со стилями существующих экранов, а портал,
+   подложка и базовая карточка остаются у Consta. */
 .app-modal-window {
   overflow: hidden;
   border-radius: 16px;
@@ -203,6 +203,11 @@
 
 .app-modal-body {
   min-width: 0;
+  padding: 20px;
+}
+
+.app-modal-body.app-modal-body-flush {
+  padding: 0;
 }
 
 .app-modal-footer {

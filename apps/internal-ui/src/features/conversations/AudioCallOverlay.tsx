@@ -98,7 +98,17 @@ export function AudioCallOverlay(props: Props) {
   };
 
   return (
-    <ConstaModal open={props.open} onCancel={() => void endAndClose()} footer={null} closable={false} width={428} className="call-modal audio-call-modal" destroyOnHidden>
+    <ConstaModal
+      open={props.open}
+      onCancel={() => void endAndClose()}
+      ariaLabel={t("conversations.audio_call")}
+      footer={null}
+      closable={false}
+      width={428}
+      className="call-modal audio-call-modal"
+      bodyClassName="app-modal-body-flush"
+      destroyOnHidden
+    >
       <AudioCallView
         mode={mode}
         status={status ?? undefined}

@@ -1,7 +1,7 @@
 import { Card } from "@consta/uikit/Card";
-import { Modal } from "@consta/uikit/Modal";
-import { useId, type ReactNode } from "react";
+import type { ReactNode } from "react";
 
+import { ConstaModal } from "./ConstaModal";
 import { Icon } from "./icons";
 
 type IconName = Parameters<typeof Icon>[0]["name"];
@@ -29,31 +29,28 @@ export function DecisionDialog({
   className?: string;
   width?: number;
 }) {
-  const titleId = useId();
-
   return (
-    <Modal
+    <ConstaModal
       className={`decision-dialog is-${tone} ${className}`.trim()}
-      isOpen={open}
-      onClose={onClose}
-      onClickOutside={onClose}
-      onEsc={onClose}
-      width="auto"
-      style={{ width }}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby={titleId}
+      open={open}
+      onCancel={onClose}
+      title={null}
+      ariaLabel={title}
+      footer={null}
+      closable={false}
+      centered
+      width={width}
+      bodyClassName="app-modal-body-flush"
+      destroyOnHidden
     >
-      {open && (
-        <Card className="decision-dialog-card" status={tone === "danger" ? "alert" : "warning"} shadow={false}>
-          <header className="decision-dialog-header">
-            <span className="decision-dialog-icon"><Icon name={icon} size={22} /></span>
-            <div><h3 id={titleId}>{title}</h3><p>{description}</p></div>
-          </header>
-          {children && <div className="decision-dialog-body">{children}</div>}
-          <footer className="decision-dialog-footer">{actions}</footer>
-        </Card>
-      )}
-    </Modal>
+      <Card className="decision-dialog-card" status={tone === "danger" ? "alert" : "warning"} shadow={false}>
+        <header className="decision-dialog-header">
+          <span className="decision-dialog-icon"><Icon name={icon} size={22} /></span>
+          <div><h3>{title}</h3><p>{description}</p></div>
+        </header>
+        {children && <div className="decision-dialog-body">{children}</div>}
+        <footer className="decision-dialog-footer">{actions}</footer>
+      </Card>
+    </ConstaModal>
   );
 }

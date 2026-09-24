@@ -410,9 +410,11 @@ img.sales-dialog-avatar {
 
 /* Поповер охвата (A1): 250px, отступ 6, тень 0 8 24; секции «Группы · Агенты ·
    Ответственный» с подзаголовками 11/600, пункты 32 r7. */
+.app-dropdown.scope-dropdown.app-dropdown-menu,
+.app-dropdown.scope-dropdown.ContextMenuLevel_Desktop,
 .app-dropdown.scope-dropdown .app-dropdown-menu,
 .app-dropdown.scope-dropdown .ContextMenu {
-  width: 250px;
+  width: 250px !important;
   padding: 6px;
   border-color: var(--n-8);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);

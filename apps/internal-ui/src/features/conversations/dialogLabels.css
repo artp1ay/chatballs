@@ -4,6 +4,8 @@
    вторая ось тогда тоже перестаёт быть `visible` и любой лишний пиксель строки
    ввода превращается в горизонтальную полосу прокрутки под полем. Полосы здесь
    быть не должно: строка обязана вписываться в ширину меню. */
+.app-dropdown.ctx-labels-menu.app-dropdown-menu,
+.app-dropdown.ctx-labels-menu.ContextMenuLevel_Desktop,
 .app-dropdown.ctx-labels-menu .app-dropdown-menu,
 .app-dropdown.ctx-labels-menu .ContextMenu {
   overflow-x: hidden;
@@ -19,7 +21,7 @@
   max-width: 100%;
 }
 
-/* Keep the inline add button from inheriting full-width menu item styles. */
+/* Кнопка добавления внутри поля не наследует ширину всего пункта меню. */
 .app-dropdown.ctx-labels-menu .ctx-new-label button {
   width: 30px;
   min-height: 30px;

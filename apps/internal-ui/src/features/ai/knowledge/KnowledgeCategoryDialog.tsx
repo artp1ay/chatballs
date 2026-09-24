@@ -28,7 +28,18 @@ export function KnowledgeCategoryDialog({
   const [categoryId, setCategoryId] = useState<number | null>(rows[0]?.category.id ?? null);
 
   return (
-    <ConstaModal className="knowledge-move-dialog" open width={480} title={null} footer={null} closable={false} onCancel={onCancel} destroyOnHidden>
+    <ConstaModal
+      className="knowledge-move-dialog"
+      open
+      width={480}
+      title={null}
+      ariaLabel={t("ai.move_category")}
+      footer={null}
+      closable={false}
+      onCancel={onCancel}
+      bodyClassName="app-modal-body-flush"
+      destroyOnHidden
+    >
       <header className="knowledge-agent-dialog-head">
         <div className="knowledge-agent-dialog-title">
           <div>
