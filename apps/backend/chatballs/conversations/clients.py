@@ -163,6 +163,7 @@ def client_row(contact: Contact) -> dict:
         # на другом языке это перестало бы работать.
         "isGuest": not contact.name,
         "phone": contact.phone,
+        "labels": list(contact.labels or []),
         "avatarUrl": contact_avatar_url_in(contact, contact.organization_id),
         "email": next(
             (
@@ -303,6 +304,7 @@ def client_detail(organization_id: int, contact_id: int) -> dict:
         # на другом языке это перестало бы работать.
         "isGuest": not contact.name,
         "phone": contact.phone,
+        "labels": list(contact.labels or []),
         "avatarUrl": contact_avatar_url_in(contact, contact.organization_id),
         # Поля карточки из чата (описание, компания, город).
         "description": contact.description,

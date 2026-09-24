@@ -122,6 +122,15 @@ class ConversationContactView(ConversationViewBase):
                 return Response({"detail": t("conversations.contact_name_empty")}, status=400)
             setattr(contact, field, value)
             changed.append(field)
+        if "labels" in request.data:
+            labels = request.data.get("labels")
+            if (
+                not isinstance(labels, list)
+                or any(not isinstance(label, str) or not label.strip() for label in labels)
+            ):
+                return Response({"detail": t("conversations.contact_labels_invalid")}, status=400)
+            contact.labels = list(dict.fromkeys(label.strip() for label in labels))
+            changed.append("labels")
         if changed:
             contact.save(update_fields=changed)
             self._audit(request, "contact_updated", conversation)

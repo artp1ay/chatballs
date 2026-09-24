@@ -38,6 +38,7 @@ MESSAGES: dict[str, object] = {
     "conversations.closed": "The conversation is closed",
     "conversations.contact_already_received": "The contact details have already been received",
     "conversations.contact_name_empty": "The contact name cannot be empty",
+    "conversations.contact_labels_invalid": "Contact labels must be a list of non-empty strings",
     "conversations.file_send_failed": "Could not send the file to the channel",
     "conversations.file_too_large": "The file is larger than allowed",
     "conversations.file_unavailable": "The file is unavailable",

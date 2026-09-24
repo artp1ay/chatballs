@@ -170,7 +170,7 @@ class RoutingRuleUnitTests(SimpleTestCase):
         )
         self.assertFalse(is_working_hours(context))
 
-    def test_empty_schedule_is_closed(self) -> None:
+    def test_empty_schedule_is_round_the_clock(self) -> None:
         context = RoutingContext(
             channel=self.channel,
             contact=self.contact,
@@ -185,7 +185,7 @@ class RoutingRuleUnitTests(SimpleTestCase):
                 holidays=[],
             ),
         )
-        self.assertFalse(is_working_hours(context))
+        self.assertTrue(is_working_hours(context))
 
     def test_business_hours_validation_rejects_overlap(self) -> None:
         with self.assertRaises(ValidationError):

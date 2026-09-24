@@ -18,7 +18,7 @@ from chatballs.identity.audit import record_audit_event
 
 # Поля карточки, которые дозаполняются из исходного контакта, если у целевого
 # они пустые. Что именно заполнили — запоминаем, чтобы очистить при разъединении.
-CARD_FIELDS = ("name", "phone", "avatar_url", "description", "company", "city")
+CARD_FIELDS = ("name", "phone", "avatar_url", "description", "company", "city", "labels")
 MIN_REASON_LENGTH = 5
 
 
@@ -53,7 +53,11 @@ def merge_contacts(*, organization, target_id: int, source_id: int, reason: str,
     filled: list[str] = []
     for field in CARD_FIELDS:
         if not getattr(target, field) and getattr(source, field):
-            setattr(target, field, getattr(source, field))
+            setattr(
+                target,
+                field,
+                list(getattr(source, field)) if field == "labels" else getattr(source, field),
+            )
             filled.append(field)
     if filled:
         target.save(update_fields=filled)
@@ -105,7 +109,7 @@ def revert_merge(*, organization, merge_id: int, reason: str, actor, request=Non
     Conversation.objects.filter(id__in=merge.moved_conversation_ids).update(contact=source)
     if merge.filled_fields:
         for field in merge.filled_fields:
-            setattr(target, field, "")
+            setattr(target, field, [] if field == "labels" else "")
         target.save(update_fields=list(merge.filled_fields))
 
     source.merged_into = None

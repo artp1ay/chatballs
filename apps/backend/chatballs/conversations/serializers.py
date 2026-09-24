@@ -243,6 +243,7 @@ def conversation_payload(
                 "id": conversation.contact_id,
                 "name": conversation.contact.name,
                 "phone": conversation.contact.phone,
+                "labels": list(conversation.contact.labels or []),
                 "avatarUrl": contact_avatar_url_in(
                     conversation.contact, conversation.organization_id
                 ),

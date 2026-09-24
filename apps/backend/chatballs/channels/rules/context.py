@@ -78,9 +78,10 @@ class RoutingContext:
         schedule = hours.weekly_schedule
         if not isinstance(schedule, dict):
             return False
-        # Пустой график не настраивает рабочее время и трактуется как закрытое.
+        # Запись с пустым расписанием означает круглосуточную доступность.
+        # Отсутствие самой записи обрабатывается выше как «не настроено».
         if not schedule:
-            return False
+            return True
         intervals = schedule.get(DAY_KEYS[local_now.weekday()])
         current_minutes = local_now.hour * 60 + local_now.minute
         if isinstance(intervals, list) and any(
