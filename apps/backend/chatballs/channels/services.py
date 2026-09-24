@@ -119,11 +119,11 @@ def update_channel(
     )
 
     if update.name is not UNSET:
-        authorization.require_channel_manage(context)
+        authorization.require_channel_manage(context, channel=locked)
     if update.routing_mode is not UNSET:
-        authorization.require_channel_manage(context)
+        authorization.require_channel_manage(context, channel=locked)
     if update.group_id is not UNSET and update.group_id != locked.group_id:
-        authorization.require_channel_manage(context)
+        authorization.require_channel_manage(context, channel=locked)
     if update.is_active is not UNSET and update.is_active != locked.is_active:
         authorization.require_organization_manage(
             context, operation="channels.operation_status_change"
