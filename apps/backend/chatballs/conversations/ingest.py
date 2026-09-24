@@ -41,6 +41,7 @@ from chatballs.conversations.models import (
 from chatballs.conversations.queue import QUEUE_FIELDS, enter_queue
 from chatballs.conversations.transports.base import InboundMessage
 from chatballs.events.models import EventOwnership, InboxEvent
+from chatballs.integrations.models import Integration
 from chatballs.tenancy.context import TenantContext
 
 logger = logging.getLogger(__name__)
@@ -75,6 +76,9 @@ def ingest_inbound(integration, inbound: InboundMessage) -> None:
     if channel is None:
         logger.warning("Integration %s has no channel — inbound dropped", integration.id)
         return
+    if integration.organization_id != channel.organization_id:
+        logger.warning("Integration %s has a cross-tenant channel — inbound dropped", integration.id)
+        return
     context = TenantContext.for_resource(channel.organization)
     agent = getattr(channel, "ai_agent", None)
     ai_available = bool(agent and agent.is_active)
@@ -102,7 +106,8 @@ def ingest_inbound(integration, inbound: InboundMessage) -> None:
 
     with transaction.atomic():
         identity = (
-            ConnectionIdentity.objects.select_related("contact")
+            ConnectionIdentity.objects.select_for_update()
+            .select_related("contact")
             .filter(connection=integration, external_user_id=inbound.user_id)
             .first()
         )

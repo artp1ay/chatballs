@@ -92,8 +92,13 @@ export function ConstaMenu({
 
   const items = normalizeItems(itemItems(menu, itemsProp));
   const close = () => setOpen(false);
-  const handleItemClick = (item: NormalizedMenuItem) => {
-    if (item.kind !== "item" || item.custom) return;
+  const handleItemClick = (
+    item: NormalizedMenuItem,
+    event?: ReactMouseEvent<any>,
+  ) => {
+    if (item.disabled || item.kind !== "item" || item.custom) return;
+    if (item.subMenu?.length) return;
+    item.action?.(event ?? ({} as ReactMouseEvent<any>));
     close();
   };
 
@@ -147,7 +152,9 @@ export function ConstaMenu({
         if (item.className.includes("success")) return "success";
         return undefined;
       }}
-      onItemClick={(item: NormalizedMenuItem) => handleItemClick(item)}
+      onItemClick={(item: NormalizedMenuItem, params: { e: ReactMouseEvent<any> }) => {
+        handleItemClick(item, params?.e);
+      }}
       onClickOutside={close}
       onEsc={close}
     />

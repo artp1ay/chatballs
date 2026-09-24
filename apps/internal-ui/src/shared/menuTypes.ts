@@ -23,6 +23,7 @@ export type NormalizedMenuItem = LegacyMenuItem & {
   className: string;
   custom: boolean;
   disabled: boolean;
+  action?: (event: ReactMouseEvent<any>) => void;
   subMenu?: NormalizedMenuItem[];
 };
 

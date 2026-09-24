@@ -71,6 +71,7 @@ export function normalizeItem(item: LegacyMenuItem, index: number): NormalizedMe
   );
   let normalizedLabel: ReactNode = label;
   let labelClassName = "";
+  let action: ((event: ReactMouseEvent<HTMLElement>) => void) | undefined;
 
   if (labelIsButton) {
     const props = label.props as {
@@ -81,16 +82,18 @@ export function normalizeItem(item: LegacyMenuItem, index: number): NormalizedMe
       onClick?: (event: ReactMouseEvent<HTMLElement>) => void;
     };
     labelClassName = props.className ?? "";
-    const handleClick = (event: ReactMouseEvent<HTMLElement>) => {
+    const combinedAction = (event: ReactMouseEvent<HTMLElement>) => {
       props.onClick?.(event);
-      item.onClick?.(event);
+      if (item.onClick && item.onClick !== props.onClick) {
+        item.onClick(event);
+      }
     };
-    normalizedLabel = cloneElement(label, {
-      type: "button",
-      disabled: disabled || props.disabled,
-      className: joinClassName("app-dropdown-item-button", labelClassName),
-      onClick: disabled ? undefined : handleClick,
-    } as Partial<unknown>);
+    action = disabled ? undefined : combinedAction;
+    normalizedLabel = (
+      <span className={joinClassName("app-dropdown-item-button", labelClassName)}>
+        {props.children}
+      </span>
+    );
   } else if (custom) {
     labelClassName = isValidElement(label)
       ? ((label.props as { className?: string }).className ?? "")
@@ -99,16 +102,11 @@ export function normalizeItem(item: LegacyMenuItem, index: number): NormalizedMe
   } else if (kind === "group") {
     normalizedLabel = <span className="app-menu-group-label">{label}</span>;
   } else {
-    const handleClick = (event: ReactMouseEvent<HTMLElement>) => item.onClick?.(event);
+    action = disabled ? undefined : item.onClick;
     normalizedLabel = (
-      <button
-        className="app-dropdown-item-button"
-        type="button"
-        disabled={disabled}
-        onClick={disabled ? undefined : handleClick}
-      >
+      <span className="app-dropdown-item-button">
         {label}
-      </button>
+      </span>
     );
   }
 
@@ -124,6 +122,7 @@ export function normalizeItem(item: LegacyMenuItem, index: number): NormalizedMe
     ),
     custom,
     disabled,
+    action,
   };
 
   if (kind === "group" && item.children?.length) {
