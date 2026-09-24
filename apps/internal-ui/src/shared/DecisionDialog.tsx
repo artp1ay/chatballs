@@ -1,5 +1,6 @@
-import { Modal } from "antd";
-import type { ReactNode } from "react";
+import { Card } from "@consta/uikit/Card";
+import { Modal } from "@consta/uikit/Modal";
+import { useId, type ReactNode } from "react";
 
 import { Icon } from "./icons";
 
@@ -28,14 +29,31 @@ export function DecisionDialog({
   className?: string;
   width?: number;
 }) {
+  const titleId = useId();
+
   return (
-    <Modal className={`decision-dialog is-${tone} ${className}`.trim()} open={open} onCancel={onClose} footer={null} title={null} closable={false} width={width} destroyOnHidden>
-      <header className="decision-dialog-header">
-        <span className="decision-dialog-icon"><Icon name={icon} size={22} /></span>
-        <div><h3>{title}</h3><p>{description}</p></div>
-      </header>
-      {children && <div className="decision-dialog-body">{children}</div>}
-      <footer className="decision-dialog-footer">{actions}</footer>
+    <Modal
+      className={`decision-dialog is-${tone} ${className}`.trim()}
+      isOpen={open}
+      onClose={onClose}
+      onClickOutside={onClose}
+      onEsc={onClose}
+      width="auto"
+      style={{ width }}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={titleId}
+    >
+      {open && (
+        <Card className="decision-dialog-card" status={tone === "danger" ? "alert" : "warning"} shadow={false}>
+          <header className="decision-dialog-header">
+            <span className="decision-dialog-icon"><Icon name={icon} size={22} /></span>
+            <div><h3 id={titleId}>{title}</h3><p>{description}</p></div>
+          </header>
+          {children && <div className="decision-dialog-body">{children}</div>}
+          <footer className="decision-dialog-footer">{actions}</footer>
+        </Card>
+      )}
     </Modal>
   );
 }

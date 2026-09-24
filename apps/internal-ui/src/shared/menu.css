@@ -140,3 +140,65 @@
   outline: 2px solid var(--primary-border);
   outline-offset: 2px;
 }
+
+/* SelectMenu и FilterDropdown используют ContextMenu. Общие классы antd-пунктов
+   выше остаются для следующих миграций, а здесь сохраняется тот же ритм меню
+   на классах ListItem/ContextMenuWrapper. */
+.app-dropdown.ContextMenuWrapper {
+  width: 220px !important;
+}
+
+.app-dropdown.ContextMenuWrapper.is-wide {
+  width: 216px !important;
+}
+
+.app-dropdown.ContextMenuWrapper.is-pager-size {
+  width: 108px !important;
+}
+
+.app-dropdown.ContextMenuWrapper.is-field,
+.app-dropdown.ContextMenuWrapper.has-overlay-width {
+  width: var(--select-menu-overlay-width, 240px) !important;
+}
+
+.app-dropdown.ContextMenuWrapper .ContextMenuLevel-Desktop,
+.app-dropdown.ContextMenuWrapper .ListBox {
+  width: 100% !important;
+  max-height: min(360px, calc(100vh - 32px));
+}
+
+.app-dropdown.ContextMenuWrapper .ListItem {
+  width: 100%;
+  min-height: 33px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 7px;
+  color: var(--n-2);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 17px;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.app-dropdown.ContextMenuWrapper .ListItem:hover {
+  background: var(--n-9);
+}
+
+.app-dropdown.ContextMenuWrapper .ListItem.is-selected,
+.app-dropdown.ContextMenuWrapper .ListItem_checked {
+  color: var(--primary-text);
+  background: var(--primary-bg);
+  font-weight: 600;
+}
+
+.app-dropdown.ContextMenuWrapper .ListItem_checked::before {
+  opacity: 0;
+}
+
+.app-dropdown.ContextMenuWrapper .ListItem:focus-visible {
+  outline: 2px solid var(--primary-border);
+  outline-offset: -2px;
+}

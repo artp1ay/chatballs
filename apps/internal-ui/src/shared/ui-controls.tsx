@@ -1,5 +1,4 @@
-import { Dropdown } from "antd";
-import { useEffect, useRef, useState, type ButtonHTMLAttributes, type CSSProperties, type ReactElement, type ReactNode, type RefObject } from "react";
+import { useEffect, useRef, useState, type ButtonHTMLAttributes, type ReactNode, type RefObject } from "react";
 
 import { Icon } from "./icons";
 import { t } from "../i18n";
@@ -115,7 +114,7 @@ export function SearchInput({ className = "", placeholder, value, onChange, inpu
       if (event.key !== hotkey || event.metaKey || event.ctrlKey || event.altKey) return;
       const target = event.target;
       // Не перехватываем клавишу, когда человек пишет в другом поле или открыл меню.
-      if (target instanceof Element && target.closest("input, textarea, [contenteditable], .ant-dropdown")) return;
+      if (target instanceof Element && target.closest("input, textarea, [contenteditable], .ant-dropdown, .app-dropdown")) return;
       event.preventDefault();
       field.current?.focus();
     }
@@ -132,93 +131,8 @@ export function SearchInput({ className = "", placeholder, value, onChange, inpu
   );
 }
 
-export type SelectOption = { value: string; label: string; dot?: string };
-
-/** Совместимое имя: фильтры списков звали вариант `FilterOption`. */
-export type FilterOption = SelectOption;
-
-/** Выпадающий список приложения — один на все селекты: и на фильтры списков, и
- *  на поля форм. Своей разметки у него нет, только меню в общем `app-dropdown`
- *  и триггер, который передают снаружи: у фильтра это кнопка-пилюля, у поля
- *  формы — бокс на всю ширину. Галочки включает `multiple`. Нативных `<select>`
- *  в проекте нет — список вариантов всегда рисуем сами, иначе на месте меню
- *  оказывается список операционной системы. */
-export function SelectMenu({ children, disabled = false, multiple = false, onOpenChange, onSelect, open, options, overlayClassName = "app-dropdown is-wide", overlayStyle, selected }: {
-  children: ReactElement;
-  disabled?: boolean;
-  multiple?: boolean;
-  onOpenChange: (open: boolean) => void;
-  onSelect: (value: string) => void;
-  open: boolean;
-  options: SelectOption[];
-  overlayClassName?: string;
-  overlayStyle?: CSSProperties;
-  selected: string[];
-}) {
-  const items = options.map((option) => ({
-    key: option.value,
-    label: (
-      <button
-        className={!multiple && selected.includes(option.value) ? "is-selected" : ""}
-        type="button"
-        onClick={(event) => {
-          if (multiple) event.stopPropagation();
-          onSelect(option.value);
-        }}
-      >
-        {multiple && (
-          <span className={`ui-filter-check ${selected.includes(option.value) ? "is-on" : ""}`}>
-            {selected.includes(option.value) && <Icon name="check" size={12} />}
-          </span>
-        )}
-        {option.dot && <i className="ui-filter-dot" style={{ background: option.dot }} />}
-        {option.label}
-      </button>
-    ),
-  }));
-  return (
-    <Dropdown
-      menu={{ items }}
-      open={disabled ? false : open}
-      onOpenChange={onOpenChange}
-      trigger={["click"]}
-      disabled={disabled}
-      overlayClassName={overlayClassName}
-      overlayStyle={overlayStyle}
-    >
-      {children}
-    </Dropdown>
-  );
-}
-
-/** Фильтр-селект списка: кнопка с текущим значением и шевроном. `multiple`
- *  включает галочки и счётчик выбранных (кадры K1 «Контакты», E1 «Сотрудники»). */
-export function FilterDropdown({ caption, className = "", icon, label, options, selected, multiple = false, open, onOpenChange, onSelect }: {
-  /** Приглушённая подпись перед значением: «Статус: Все» (кадры PT1/PT3). */
-  caption?: string;
-  className?: string;
-  icon?: IconName;
-  label: string;
-  options: SelectOption[];
-  selected: string[];
-  multiple?: boolean;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onSelect: (value: string) => void;
-}) {
-  const active = selected.length > 0;
-  return (
-    <SelectMenu multiple={multiple} onOpenChange={onOpenChange} onSelect={onSelect} open={open} options={options} selected={selected}>
-      <button className={`ui-filter-button ${active ? "is-active" : ""} ${className}`.trim()} type="button">
-        {icon && <Icon name={icon} size={14} strokeWidth={2} />}
-        {caption && <i className="ui-filter-caption">{caption}</i>}
-        {label}
-        {multiple && selected.length > 0 && <span>{selected.length}</span>}
-        <Icon name="chevron" size={13} strokeWidth={2.2} />
-      </button>
-    </SelectMenu>
-  );
-}
+export { FilterDropdown, SelectMenu } from "./SelectMenu";
+export type { FilterOption, SelectOption } from "./SelectMenu";
 
 export function UnderlineTabs<T extends string>({ className = "", items, value, onChange }: UnderlineTabsProps<T>) {
   return (

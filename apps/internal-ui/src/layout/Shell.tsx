@@ -1,3 +1,4 @@
+import type { SnackBarItemDefault } from "@consta/uikit/SnackBar";
 import { useCallback, useEffect, useState } from "react";
 
 import type { AppData, AuthenticatedUser, Employee, RouteKey, SessionUser } from "../types";
@@ -19,8 +20,8 @@ import { OnboardingProvider, useOnboardingState } from "../features/onboarding/u
 import { UpdateBanner } from "../features/updates/UpdateBanner";
 import { ShellRouteContent } from "./ShellRouteContent";
 
-export function Shell({ route, setRoute, settingsSection, openSettingsRoute, selectedEmployeeId, selectedAgentId, selectedKnowledgeId, selectedConversationId, selectedClientId, selectedChannelId, selectedSupportPortalId, portalSettingsSection, openChannelRoute, openSupportPortalRoute, openPortalSettingsRoute, openEmployeeRoute, openAgentRoute, openKnowledgeRoute, openKnowledgeEditorRoute, openConversationRoute, openClientRoute, user, data, reload, onUserUpdated, onLogout, onSwitchOrganization, onOrganizationCreated }: { route: RouteKey; setRoute: (route: RouteKey) => void; settingsSection: SettingsSectionKey | null; openSettingsRoute: (section: SettingsSectionKey | null) => void; selectedEmployeeId: number | null; selectedAgentId: number | null; selectedKnowledgeId: number | null; selectedConversationId: number | null; selectedClientId: number | null; selectedChannelId: number | null; selectedSupportPortalId: number | null; portalSettingsSection: PortalSettingsSectionKey | null; openEmployeeRoute: (employeeId: number) => void; openAgentRoute: (agentId: number) => void; openKnowledgeRoute: (knowledgeId: number) => void;
-  openKnowledgeEditorRoute: (knowledgeId: number | null) => void; openConversationRoute: (conversationId: number) => void; openClientRoute: (clientId: number) => void; openChannelRoute: (channelId: number) => void; openSupportPortalRoute: (portalId: number) => void; openPortalSettingsRoute: (portalId: number, section?: PortalSettingsSectionKey) => void; user: SessionUser; data: AppData; reload: () => void; onUserUpdated: (user: SessionUser) => void; onLogout: () => void; onSwitchOrganization: (organizationPublicId: string) => void; onOrganizationCreated: (identity: AuthenticatedUser, organizationPublicId: string) => void }) {
+export function Shell({ route, setRoute, settingsSection, openSettingsRoute, selectedEmployeeId, selectedAgentId, selectedKnowledgeId, selectedConversationId, selectedClientId, selectedChannelId, selectedSupportPortalId, portalSettingsSection, openChannelRoute, openSupportPortalRoute, openPortalSettingsRoute, openEmployeeRoute, openAgentRoute, openKnowledgeRoute, openKnowledgeEditorRoute, openConversationRoute, openClientRoute, user, data, reload, onUserUpdated, onLogout, onSwitchOrganization, onOrganizationCreated, onNotificationAlert }: { route: RouteKey; setRoute: (route: RouteKey) => void; settingsSection: SettingsSectionKey | null; openSettingsRoute: (section: SettingsSectionKey | null) => void; selectedEmployeeId: number | null; selectedAgentId: number | null; selectedKnowledgeId: number | null; selectedConversationId: number | null; selectedClientId: number | null; selectedChannelId: number | null; selectedSupportPortalId: number | null; portalSettingsSection: PortalSettingsSectionKey | null; openEmployeeRoute: (employeeId: number) => void; openAgentRoute: (agentId: number) => void; openKnowledgeRoute: (knowledgeId: number) => void;
+  openKnowledgeEditorRoute: (knowledgeId: number | null) => void; openConversationRoute: (conversationId: number) => void; openClientRoute: (clientId: number) => void; openChannelRoute: (channelId: number) => void; openSupportPortalRoute: (portalId: number) => void; openPortalSettingsRoute: (portalId: number, section?: PortalSettingsSectionKey) => void; user: SessionUser; data: AppData; reload: () => void; onUserUpdated: (user: SessionUser) => void; onLogout: () => void; onSwitchOrganization: (organizationPublicId: string) => void; onOrganizationCreated: (identity: AuthenticatedUser, organizationPublicId: string) => void; onNotificationAlert: (item: SnackBarItemDefault) => void }) {
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [notifOpen, setNotifOpen] = useState(false);
@@ -81,7 +82,7 @@ export function Shell({ route, setRoute, settingsSection, openSettingsRoute, sel
 
   // Тост и системное уведомление — по идентификаторам пришедшего, а не по
   // росту счётчика непрочитанных.
-  useNotificationAlerts({ items: notifications, onOpen: (item) => void onNotificationClick(item) });
+  useNotificationAlerts({ items: notifications, onAlert: onNotificationAlert, onOpen: (item) => void onNotificationClick(item) });
 
   async function onNotificationClick(notification: AppNotification) {
     setNotifOpen(false);

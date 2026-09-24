@@ -71,13 +71,20 @@
 
 .content-state > p:last-child { margin-bottom: 0; }
 
-.decision-dialog .ant-modal-content {
-  padding: 0;
+.decision-dialog {
   overflow: hidden;
-  border-radius: var(--radius-4xl);
 }
 
-.decision-dialog.is-danger .ant-modal-content { border: 1px solid var(--error-border); }
+.decision-dialog-card {
+  width: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-4xl);
+  background: var(--surface-card);
+}
+
+.decision-dialog.is-danger .decision-dialog-card {
+  border-color: var(--error-border);
+}
 
 .decision-dialog-header {
   display: flex;

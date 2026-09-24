@@ -1,4 +1,4 @@
-import { Drawer } from "antd";
+import { Sidebar } from "@consta/uikit/Sidebar";
 
 import { Icon } from "../../shared/icons";
 import { LEVEL_META, type AppNotification } from "./model";
@@ -34,17 +34,34 @@ export function NotificationDrawer({ open, items, unreadCount, onClose, onItemCl
 }) {
   const { today, earlier } = group(items);
   return (
-    <Drawer
-      open={open}
+    <Sidebar
+      className="notification-sidebar"
+      rootClassName="notification-sidebar-root"
+      isOpen={open}
+      position="right"
+      size="m"
+      hasOverlay
       onClose={onClose}
-      title={t("admin.notifications")}
-      width={400}
-      extra={unreadCount > 0 ? <button className="notif-mark-all" type="button" onClick={onMarkAll}>{t("admin.mark_all_as_read")}</button> : null}
+      onClickOutside={onClose}
+      onEsc={onClose}
     >
-      {items.length === 0 && <div className="notif-empty">{t("admin.no_notifications")}</div>}
-      {today.length > 0 && <Section title={t("common.today")} items={today} onItemClick={onItemClick} />}
-      {earlier.length > 0 && <Section title={t("admin.earlier")} items={earlier} onItemClick={onItemClick} />}
-    </Drawer>
+      <div className="notification-sidebar-shell">
+        <header className="notification-sidebar-header">
+          <h2>{t("admin.notifications")}</h2>
+          <div className="notification-sidebar-actions">
+            {unreadCount > 0 && <button className="notif-mark-all" type="button" onClick={onMarkAll}>{t("admin.mark_all_as_read")}</button>}
+            <button className="notification-sidebar-close" type="button" aria-label={t("common.close")} title={t("common.close")} onClick={onClose}>
+              <Icon name="close" size={17} />
+            </button>
+          </div>
+        </header>
+        <div className="notification-sidebar-body">
+          {items.length === 0 && <div className="notif-empty">{t("admin.no_notifications")}</div>}
+          {today.length > 0 && <Section title={t("common.today")} items={today} onItemClick={onItemClick} />}
+          {earlier.length > 0 && <Section title={t("admin.earlier")} items={earlier} onItemClick={onItemClick} />}
+        </div>
+      </div>
+    </Sidebar>
   );
 }
 

@@ -1,8 +1,81 @@
-/* Шторка уведомлений (antd Drawer). Список слипался: у элементов не было
+/* Шторка уведомлений на Consta UI Sidebar. Список слипался: у элементов не было
    зазора вовсе, поэтому два непрочитанных подряд сливались в один цветной
    блок, а внутри карточки заголовок, текст и время шли в 2–4 px друг от друга
    с line-height: normal. Ниже — ритм: 6 px между уведомлениями, интерлиньяж у
    каждой строки, секции разделены линией. */
+
+.notification-sidebar-root {
+  z-index: 100;
+}
+
+.Sidebar-Window.notification-sidebar {
+  --sidebar-size: 400px;
+  background: var(--surface-card);
+  color: var(--n-1);
+}
+
+.notification-sidebar-shell {
+  min-height: 100%;
+}
+
+.notification-sidebar-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 64px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border-default);
+  background: var(--surface-card);
+}
+
+.notification-sidebar-header h2 {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  color: var(--text-heading);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.notification-sidebar-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+}
+
+.notification-sidebar-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--n-4);
+  cursor: pointer;
+}
+
+.notification-sidebar-close:hover {
+  background: var(--n-9);
+  color: var(--n-2);
+}
+
+.notification-sidebar-close:focus-visible,
+.notif-mark-all:focus-visible {
+  outline: 2px solid var(--primary-border);
+  outline-offset: 2px;
+}
+
+.notification-sidebar-body {
+  padding: 16px 20px 24px;
+}
 
 .notif-mark-all {
   height: 26px;
@@ -15,6 +88,35 @@
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
+}
+
+.notification-sidebar-body .notif-empty {
+  padding-top: 40px;
+}
+
+.app-snack-bar {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 3000;
+  width: min(400px, calc(100vw - 32px));
+}
+
+.notification-snack-message {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.notification-snack-message strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.notification-snack-message span {
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.4;
 }
 
 .notif-mark-all:hover {

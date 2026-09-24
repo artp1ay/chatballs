@@ -1,3 +1,4 @@
+import { SnackBar, type SnackBarItemDefault } from "@consta/uikit/SnackBar";
 import { Theme } from "@consta/uikit/Theme";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -52,6 +53,18 @@ export function App() {
   const [needsSetup, setNeedsSetup] = useState(false);
   const [data, setData] = useState<AppData>({ groups: [], agents: [] });
   const [dataError, setDataError] = useState(false);
+  const [notificationSnackBars, setNotificationSnackBars] = useState<SnackBarItemDefault[]>([]);
+
+  const showNotificationSnackBar = useCallback((item: SnackBarItemDefault) => {
+    setNotificationSnackBars((current) => [
+      ...current.filter((existing) => existing.key !== item.key),
+      item,
+    ]);
+  }, []);
+
+  const removeNotificationSnackBar = useCallback((item: SnackBarItemDefault) => {
+    setNotificationSnackBars((current) => current.filter((existing) => existing.key !== item.key));
+  }, []);
   const navigation = useRouteNavigation(initialRoute, organizationPublicId);
   const { navigate } = navigation;
 
@@ -200,6 +213,7 @@ export function App() {
     setTotpChallenge(null);
     navigate("chat", null, true, null);
     setData({ groups: [], agents: [] });
+    setNotificationSnackBars([]);
   }
 
   if (resetting) {
@@ -244,9 +258,15 @@ export function App() {
         // Ключ организации — на провайдере: при переключении сокет обязан
         // переоткрыться на адрес новой, а не остаться на прежней.
         <RealtimeProvider key={user.organizationPublicId}>
-          <Shell key={user.organizationPublicId} route={navigation.route} setRoute={(nextRoute) => navigate(nextRoute)} selectedEmployeeId={navigation.selectedEmployeeId} selectedAgentId={navigation.selectedAgentId} selectedKnowledgeId={navigation.selectedKnowledgeId} selectedConversationId={navigation.selectedConversationId} selectedClientId={navigation.selectedClientId} openClientRoute={(clientId) => navigate("salesClientDetail", clientId)} selectedChannelId={navigation.selectedChannelId} openChannelRoute={(channelId) => navigate("agentDetail", channelId)} selectedSupportPortalId={navigation.selectedSupportPortalId} openSupportPortalRoute={(portalId) => navigate("supportPortalDetail", portalId)} portalSettingsSection={navigation.selectedPortalSection} openPortalSettingsRoute={(portalId, section) => navigate("supportPortalSettings", `${portalId}/${section ?? ""}`)} settingsSection={navigation.selectedSettingsSection} openSettingsRoute={(section) => navigate("settings", section)} openEmployeeRoute={(employeeId) => navigate("employeeDetail", employeeId)} openAgentRoute={(agentId) => navigate("agentDetail", agentId)} openKnowledgeRoute={(knowledgeId) => navigate("knowledgeDetail", knowledgeId)} openKnowledgeEditorRoute={(knowledgeId) => (knowledgeId === null ? navigate("knowledgeCreate") : navigate("knowledgeEdit", knowledgeId))} openConversationRoute={(conversationId) => navigate("chat", conversationId)} user={user} data={data} reload={loadData} onUserUpdated={refreshIdentity} onLogout={logout} onSwitchOrganization={switchOrganization} onOrganizationCreated={finishOrganizationCreate} />
+          <Shell key={user.organizationPublicId} route={navigation.route} setRoute={(nextRoute) => navigate(nextRoute)} selectedEmployeeId={navigation.selectedEmployeeId} selectedAgentId={navigation.selectedAgentId} selectedKnowledgeId={navigation.selectedKnowledgeId} selectedConversationId={navigation.selectedConversationId} selectedClientId={navigation.selectedClientId} openClientRoute={(clientId) => navigate("salesClientDetail", clientId)} selectedChannelId={navigation.selectedChannelId} openChannelRoute={(channelId) => navigate("agentDetail", channelId)} selectedSupportPortalId={navigation.selectedSupportPortalId} openSupportPortalRoute={(portalId) => navigate("supportPortalDetail", portalId)} portalSettingsSection={navigation.selectedPortalSection} openPortalSettingsRoute={(portalId, section) => navigate("supportPortalSettings", `${portalId}/${section ?? ""}`)} settingsSection={navigation.selectedSettingsSection} openSettingsRoute={(section) => navigate("settings", section)} openEmployeeRoute={(employeeId) => navigate("employeeDetail", employeeId)} openAgentRoute={(agentId) => navigate("agentDetail", agentId)} openKnowledgeRoute={(knowledgeId) => navigate("knowledgeDetail", knowledgeId)} openKnowledgeEditorRoute={(knowledgeId) => (knowledgeId === null ? navigate("knowledgeCreate") : navigate("knowledgeEdit", knowledgeId))} openConversationRoute={(conversationId) => navigate("chat", conversationId)} user={user} data={data} reload={loadData} onUserUpdated={refreshIdentity} onLogout={logout} onSwitchOrganization={switchOrganization} onOrganizationCreated={finishOrganizationCreate} onNotificationAlert={showNotificationSnackBar} />
         </RealtimeProvider>
       )}
+      <SnackBar
+        className="app-snack-bar"
+        items={notificationSnackBars}
+        onItemClose={removeNotificationSnackBar}
+        onItemAutoClose={removeNotificationSnackBar}
+      />
     </Theme>
   );
 }

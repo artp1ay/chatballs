@@ -91,6 +91,7 @@ export function SelectField({ adornment, disabled = false, invalid = false, labe
     <div className={className}>
       <span>{label}</span>
       <SelectMenu
+        anchorRef={trigger}
         disabled={disabled}
         onOpenChange={setOpen}
         onSelect={(next) => {
