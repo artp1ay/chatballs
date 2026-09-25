@@ -18,6 +18,7 @@
 - После целевых проверок создай непустой коммит с сообщением, описывающим результат, и обязательной последней строкой:
   `Co-Authored-By: Paperclip <noreply@paperclip.ing>`
 - Отправь текущую ветку в `origin` через Paperclip-managed `git`/`gh`: `git push -u origin HEAD` (или `git push origin <branch>`). Не используй `--force` и не коммить пустой набор изменений.
+- Если managed GitHub App не содержит текущий fork и возвращает `403`, используй безопасный fallback `scripts/paperclip-git-push.sh`: он берёт `PAPERCLIP_GITHUB_PAT` из зашифрованного Paperclip secret binding, не принимает токен в аргументах и не печатает его. Не переходи к неавторизованному git или plaintext-токену.
 - Если основная ветка защищена и прямой push отклонён, создай рабочую ветку, отправь её в `origin`, открой PR и укажи его URL в задаче. Не оставляй результат только в локальном workspace.
 - После push проверь, что remote содержит тот же commit SHA (`git ls-remote origin refs/heads/<branch>`), и запиши SHA/ветку/URL в комментарии и work product `commit` (а также `branch` или `pull_request`, если они применимы).
 - Если push невозможен, задача не может быть закрыта: сообщи точную ошибку и оставь её в `in_review`/`blocked` с владельцем разблокировки. Никогда не выводи GitHub-токены или содержимое секретов в лог.
