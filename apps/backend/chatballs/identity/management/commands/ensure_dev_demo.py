@@ -34,7 +34,7 @@ from chatballs.identity.models import (
 )
 from chatballs.tenancy.context import TenantActorKind, TenantContext
 from chatballs.tenancy.database import tenant_atomic
-from chatballs.tenancy.lookup import reserve_organization_id
+from chatballs.tenancy.lookup import organization_by_slug, reserve_organization_id
 
 DEFAULT_ORG_NAME = "Ателье Норд"
 DEFAULT_ORG_SLUG = "atelie-nord"
@@ -92,23 +92,24 @@ class Command(BaseCommand):
         admin_email: str,
         admin_password: str,
     ) -> tuple[Organization, HumanUser]:
-        organization = Organization.objects.filter(slug=org_slug).first()
+        organization = organization_by_slug(org_slug)
         owner = HumanUser.objects.filter(email=admin_email).first()
 
         if organization is not None:
             if owner is None:
-                membership = (
-                    OrganizationMembership.objects.filter(
-                        organization=organization,
-                        role=EmployeeRole.OWNER,
+                with tenant_atomic(organization.id):
+                    membership = (
+                        OrganizationMembership.objects.filter(
+                            organization=organization,
+                            role=EmployeeRole.OWNER,
+                        )
+                        .select_related("user")
+                        .first()
                     )
-                    .select_related("user")
-                    .first()
-                )
-                if membership:
-                    owner = membership.user
-                else:
-                    owner = HumanUser.objects.filter(is_instance_admin=True).first()
+                    if membership:
+                        owner = membership.user
+                    else:
+                        owner = HumanUser.objects.filter(is_instance_admin=True).first()
             self.stdout.write(f"Организация «{organization.name}» ({org_slug}) уже существует.")
             return organization, owner
 
@@ -156,7 +157,9 @@ class Command(BaseCommand):
                     payload={"organizationName": organization.name, "installDemo": True},
                 )
 
-        self.stdout.write(self.style.SUCCESS(f"Создана организация «{org_name}» и администратор {admin_email}."))
+        self.stdout.write(
+            self.style.SUCCESS(f"Создана организация «{org_name}» и администратор {admin_email}.")
+        )
         return organization, owner
 
     def _ensure_demo_dataset(
@@ -172,7 +175,9 @@ class Command(BaseCommand):
         )
 
         with tenant_atomic(context):
-            dataset = DemoDataset.objects.select_for_update().filter(organization=organization).first()
+            dataset = (
+                DemoDataset.objects.select_for_update().filter(organization=organization).first()
+            )
             if dataset is not None and dataset.status == DemoDatasetStatus.INSTALLED:
                 self.stdout.write(
                     self.style.SUCCESS(
@@ -212,7 +217,9 @@ class Command(BaseCommand):
         self.stdout.write("")
         self.stdout.write("Учетные записи (единый пароль: Chatballs-Demo-2026):")
         self.stdout.write(f"  - Администратор установки: {admin_email}")
-        self.stdout.write("  - Администратор демо:     e.kuznetsova@atelie-nord.ru (Елена Кузнецова)")
+        self.stdout.write(
+            "  - Администратор демо:     e.kuznetsova@atelie-nord.ru (Елена Кузнецова)"
+        )
         self.stdout.write("  - Администратор демо:     a.kim@atelie-nord.ru (Анна Ким)")
         self.stdout.write("  - Оператор:               s.petrova@atelie-nord.ru (Светлана Петрова)")
         self.stdout.write("  - Поддержка:              i.saveliev@atelie-nord.ru (Игорь Савельев)")

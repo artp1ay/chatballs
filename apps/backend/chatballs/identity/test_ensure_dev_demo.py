@@ -4,11 +4,13 @@ from __future__ import annotations
 
 import tempfile
 from io import StringIO
+from unittest.mock import patch
 
 from django.core.management import call_command
 from django.test import TestCase, override_settings
 
 from chatballs.identity.demo_models import DemoDataset, DemoDatasetStatus
+from chatballs.identity.management.commands.ensure_dev_demo import Command
 from chatballs.identity.models import (
     EmployeeRole,
     HumanUser,
@@ -65,3 +67,27 @@ class EnsureDevDemoCommandTests(TestCase):
 
         dataset.refresh_from_db()
         self.assertEqual(dataset.records_count, records_before)
+
+    def test_ensure_organization_uses_organization_by_slug_under_rls(self) -> None:
+        """HOM-62: организация должна определяться через organization_by_slug."""
+        cmd = Command()
+        with patch(
+            "chatballs.identity.management.commands.ensure_dev_demo.organization_by_slug"
+        ) as mock_lookup:
+            mock_org = Organization(id=999, name="Тест", slug="atelie-nord")
+            mock_lookup.return_value = mock_org
+            with patch.object(
+                Organization.objects,
+                "filter",
+                side_effect=AssertionError(
+                    "Не должен вызывать прямой filter к Organization без контекста"
+                ),
+            ):
+                org, owner = cmd._ensure_organization(
+                    org_name="Тест",
+                    org_slug="atelie-nord",
+                    admin_email="admin@atelie-nord.ru",
+                    admin_password="password",
+                )
+                self.assertEqual(org, mock_org)
+                mock_lookup.assert_called_once_with("atelie-nord")
