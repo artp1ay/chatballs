@@ -49,6 +49,7 @@
   - [Calls](#calls)
   - [External file storage (optional)](#external-file-storage-optional)
   - [Updating](#updating)
+- [Local Development](#local-development)
 - [Features](#features)
 - [Design System and Frontend](#design-system-and-frontend)
 - [Troubleshooting](#troubleshooting)
@@ -157,6 +158,55 @@ docker compose pull && docker compose up -d --wait
 ```
 
 Migrations run automatically. Secrets and data stay in their volumes.
+
+---
+
+## Local Development
+
+To run the stack locally from source, use the standalone dev compose file:
+
+```bash
+docker compose -f compose.dev.yaml up -d --build --wait
+```
+
+or use the helper script:
+
+```bash
+./scripts/start.sh
+```
+
+(for Windows: `.\scripts\start.ps1`).
+
+The dev environment builds images locally from source, runs database migrations, and automatically seeds the demonstration dataset for "Atelie Nord" (`atelie-nord`). Going through the first-run wizard manually is not required.
+
+### Entry points
+
+| Address | Description |
+|---|---|
+| `http://localhost/` | Main web UI (via local gateway) |
+| `http://platform.localhost/` | Platform workspace |
+| `http://localhost/chat/` | Customer web chat |
+| `http://localhost:5173/` | internal-ui (direct Vite dev server) |
+| `http://localhost:5175/` | web-chat (direct Vite dev server) |
+
+### Demo credentials (common password: `Chatballs-Demo-2026`)
+
+| Email | Role | Notes |
+|---|---|---|
+| `admin@atelie-nord.ru` | Instance Owner | Instance administrator and owner of "Atelie Nord" |
+| `e.kuznetsova@atelie-nord.ru` | ADMIN | Elena Kuznetsova — organization administrator |
+| `a.kim@atelie-nord.ru` | ADMIN | Anna Kim — organization administrator |
+| `s.petrova@atelie-nord.ru` | EMPLOYEE | Svetlana Petrova — support agent |
+| `i.saveliev@atelie-nord.ru` | EMPLOYEE | Igor Saveliev — support specialist |
+| `k.volkov@atelie-nord.ru` | EMPLOYEE | Kirill Volkov — staff member with TOTP enabled |
+
+### Reset dev environment to clean state
+
+```bash
+./scripts/start.sh --reset
+```
+
+(or `docker compose -f compose.dev.yaml down --volumes --remove-orphans && rm -rf data`).
 
 ---
 
