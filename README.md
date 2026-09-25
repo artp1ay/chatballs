@@ -49,6 +49,7 @@
   - [Calls](#calls)
   - [External file storage (optional)](#external-file-storage-optional)
   - [Updating](#updating)
+- [Local Development](#local-development)
 - [Features](#features)
 - [Design System and Frontend](#design-system-and-frontend)
 - [Troubleshooting](#troubleshooting)
@@ -157,6 +158,144 @@ docker compose pull && docker compose up -d --wait
 ```
 
 Migrations run automatically. Secrets and data stay in their volumes.
+
+---
+
+## Local Development
+
+To run the stack locally from source, use the single dev manifest.
+Composite flags (multiple `-f` options) are not needed
+and not used: `compose.dev.yaml` is self-contained, project images are always
+built locally from the repository, and only public base images
+(nginx, postgres, redis and similar) are pulled from Docker Hub.
+
+Requirements: Docker with the Docker Compose plugin. No `.env` file,
+no `docker login`.
+
+```bash
+docker compose -f compose.dev.yaml up -d --build --wait
+```
+
+or use the helper script:
+
+```bash
+./scripts/start.sh
+```
+
+(for Windows: `.\scripts\start.ps1`).
+
+What happens automatically after the single command:
+
+1. Instance secrets are generated (Docker volumes `chatballs-secrets*`).
+2. PostgreSQL with pgvector and Redis start.
+3. Database migrations run.
+4. The `ensure_dev_demo` command creates the "Atelie Nord"
+   organization (slug `atelie-nord`, UI language — Russian) and the owner
+   administrator, then installs the demonstration dataset.
+5. The application, platform service, workers, frontend and the local gateway
+   start. Going through the first-run wizard manually is not required.
+
+The command returns once the services are healthy (`--wait`).
+A cold start with image builds takes up to 10 minutes,
+a repeat start takes up to 3 minutes.
+
+### Dev ports
+
+| Host port | Service | Description |
+|---|---|---|
+| `80` | gateway (nginx) | Single entry point: web UI, web chat, API |
+| `5432` | postgres | PostgreSQL (`POSTGRES_HOST_PORT`) |
+| `6379` | redis | Redis (`REDIS_HOST_PORT`) |
+| `8010` | backend-app | Application API (`BACKEND_APP_PORT`) |
+| `8011` | backend-platform | Platform service (`BACKEND_PLATFORM_PORT`) |
+| `127.0.0.1:18001` | backend-admin | Technical panel, loopback only (`CHATBALLS_ADMIN_PORT`) |
+| `5173` | frontend | internal-ui, direct Vite dev server (`INTERNAL_UI_PORT`) |
+| `5175` | web-chat | Direct Vite dev server (`WEB_CHAT_PORT`) |
+
+### Entry points
+
+| Address | Description |
+|---|---|
+| `http://localhost/` | Main web UI (via local gateway) |
+| `http://platform.localhost/` | Platform workspace |
+| `http://localhost/chat/` | Customer web chat |
+| `http://localhost:5173/` | internal-ui (direct Vite dev server) |
+| `http://localhost:5175/` | web-chat (direct Vite dev server) |
+
+Application readiness: `/api/v1/health/live/` and `/api/v1/health/ready/`
+through the gateway. Service state: `docker compose -f compose.dev.yaml ps`.
+
+### "Atelie Nord" demo data
+
+The dev stack starts pre-seeded with a lived-in looking dataset:
+timestamps are relative, "now" is the moment of installation.
+
+- The "Atelie Nord" organization (`atelie-nord`), language — Russian.
+- 7 accounts (single password — see below) and 2 invitations:
+  one active, one expired.
+- 3 groups: operators, support, VIP clients.
+- 9 contacts, 13 conversations (7 visible in the main list, the rest are
+  archived and spam), 9 labels, 7 reply templates, conversation history
+  and one merged duplicate contact.
+- 5 AI agents, 7 connections (Telegram, MAX, email, website widgets,
+  including the help-section and account widgets), 3 knowledge categories
+  and 8 knowledge-base articles. The built-in demo provider needs no API key:
+  the "Consultant" agent answers in the web chat right after installation.
+- 5 calls, 5 notifications, 2 messenger bindings with a linking code,
+  a published support portal ("Atelie Nord" help center).
+
+### Demo credentials (common password: `Chatballs-Demo-2026`)
+
+| Email | Role | Notes |
+|---|---|---|
+| `admin@atelie-nord.ru` | Instance Owner | Instance administrator and owner of "Atelie Nord" |
+| `e.kuznetsova@atelie-nord.ru` | ADMIN | Elena Kuznetsova — organization administrator |
+| `a.kim@atelie-nord.ru` | ADMIN | Anna Kim — organization administrator |
+| `s.petrova@atelie-nord.ru` | EMPLOYEE | Svetlana Petrova — support agent (dark theme) |
+| `i.saveliev@atelie-nord.ru` | EMPLOYEE | Igor Saveliev — support specialist |
+| `k.volkov@atelie-nord.ru` | EMPLOYEE | Kirill Volkov — second-factor scenario (TOTP enabled) |
+| `n.frolova@atelie-nord.ru` | EMPLOYEE, blocked | Natalia Frolova — negative login scenario |
+
+The password is the same for everyone and deliberately public — demo only.
+The `k.volkov@atelie-nord.ru` account asks for a second-factor code,
+`n.frolova@atelie-nord.ru` is blocked and cannot sign in.
+
+### Quick check scenarios
+
+- Administrator sign-in (`e.kuznetsova@atelie-nord.ru`): conversations,
+  knowledge base, support portal, employee invitations.
+- Operator sign-in (`s.petrova@atelie-nord.ru`): conversation queue, reply
+  templates, labels, assignee changes.
+- Web chat (`http://localhost/chat/`): ask the "Consultant" —
+  the answer comes from the knowledge base with no external keys.
+- Second factor: sign-in as `k.volkov@atelie-nord.ru` asks for a TOTP code.
+- Negative scenario: sign-in as `n.frolova@atelie-nord.ru` is rejected,
+  the expired `old.invite@atelie-nord.ru` invitation is invalid.
+
+### Repeat runs and reset
+
+Repeat runs are idempotent: no duplicated data, record counters do not change,
+the `init` container exits with code `0`.
+
+```bash
+docker compose -f compose.dev.yaml up -d --build --wait
+```
+
+### Reset dev environment to clean state
+
+```bash
+./scripts/start.sh --reset
+```
+
+(or `docker compose -f compose.dev.yaml down --volumes --remove-orphans && rm -rf data`).
+The next start re-seeds automatically.
+
+### How this differs from the production install
+
+The release `compose.yaml` (`curl …/compose.yaml` → `docker compose up -d --wait`)
+stays the production install path and is not used for development:
+it has no source builds, no direct Vite ports and no auto-seeding —
+there the owner and demo data are created by the first-run wizard in the browser.
 
 ---
 

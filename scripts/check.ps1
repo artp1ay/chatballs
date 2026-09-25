@@ -15,7 +15,7 @@ $ErrorActionPreference = "Stop"
 
 Set-Location (Join-Path $PSScriptRoot "..")
 
-$compose = "compose", "-f", "compose.yaml", "-f", "compose.dev.yaml"
+$compose = "compose", "-f", "compose.dev.yaml"
 $failed = @()
 
 function Invoke-Step {
