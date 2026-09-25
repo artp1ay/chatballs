@@ -11,7 +11,7 @@ from chatballs.integrations.models import Integration, IntegrationProvider
 from chatballs.integrations.services import (
     IntegrationInput,
     create_integration,
-    test_integration,
+    test_integration as service_test_integration,
     update_integration,
 )
 from chatballs.testing import system_tenant_context
@@ -60,7 +60,7 @@ class ProviderRuntimeRevisionTests(TestCase):
             checking._CHECKS,
             {IntegrationProvider.CUSTOM: lambda **_kwargs: (True, "ok", {})},
         ):
-            checked = test_integration(context=self.context, integration=integration)
+            checked = service_test_integration(context=self.context, integration=integration)
 
         self.assertEqual(checked.runtime_revision, initial_revision + 1)
 

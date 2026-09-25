@@ -52,8 +52,11 @@ COVERAGE_EXEMPT = {
     ("identity", "instancesettings"),
     # Состояние обновлений установки — одна строка на инстанс (updates/0001).
     ("updates", "updatestate"),
+    # Расписание и правила маршрутизации каналов настраиваются пользователем.
+    ("channels", "channelbusinesshours"),
+    ("channels", "channelroutingrule"),
 }
-COVERAGE_EXEMPT_APPS = {"platform", "events"}
+COVERAGE_EXEMPT_APPS = {"platform", "events", "tickets"}
 
 
 def _covered_models() -> list[type[models.Model]]:

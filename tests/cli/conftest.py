@@ -161,12 +161,20 @@ def fake_env(tmp_path: Path):
         _write_lf(docker, FAKE_DOCKER)
         _chmod_x(docker)
 
+    def install_uname(arch: str = "x86_64") -> None:
+        uname = bin_dir / "uname"
+        _write_lf(uname, f"#!/usr/bin/env bash\necho {arch}\n")
+        _chmod_x(uname)
+
+    install_uname()
+
     chatballs = REPO_RELEASE_ROOT / "chatballs"
 
     def make_env() -> dict:
         env = os.environ.copy()
         sys_path = os.environ.get("PATH", "")
         env["PATH"] = str(bin_dir) + os.pathsep + sys_path
+        env["BASH_ENV"] = ""
         env["CHATBALLS_RELEASE_DIR"] = str(release)
         env["CHATBALLS_INSTANCE_DIR"] = str(instance)
         env["FAKE_DOCKER_LOG"] = str(log_file)
@@ -188,5 +196,6 @@ def fake_env(tmp_path: Path):
     e.set_env = set_env
     e.install_flock = install_flock
     e.install_docker = install_docker
+    e.install_uname = install_uname
     e.make_env = make_env
     return e
