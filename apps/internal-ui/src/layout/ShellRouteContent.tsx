@@ -43,7 +43,14 @@ const SupportPortalDetailPage = lazy(() => import("../features/support-portals/S
   (module) => ({ default: module.SupportPortalDetailPage }),
 ));
 
-export function ShellRouteContent({ settingsSection, openSettings, chatScope, setChatScope, chatCounters, chatScopeSwitcher, route, data, selectedEmployeeId, selectedAgentId, selectedKnowledgeId, selectedConversationId, selectedClientId, openClient, selectedChannelId, openChannel, selectedSupportPortalId, portalSettingsSection, openSupportPortal, openPortalSettings, openConversation, openEmployee, openAgent, openKnowledge, openKnowledgeEditor, onAgentLoaded, onChannelLoaded, reload, setRoute, user, onUserUpdated, onLogout, onOpenSidebar, onOrganizationCreated }: { settingsSection: SettingsSectionKey | null; openSettings: (section: SettingsSectionKey | null) => void; chatScope: DialogScope; setChatScope: (scope: DialogScope) => void; chatCounters: ConversationCounters | null; chatScopeSwitcher: boolean; route: RouteKey; data: AppData; selectedEmployeeId: number | null; selectedAgentId: number | null; selectedKnowledgeId: number | null; selectedConversationId: number | null; selectedClientId: number | null; openClient: (clientId: number) => void; selectedChannelId: number | null; openChannel: (channelId: number) => void; selectedSupportPortalId: number | null; portalSettingsSection: PortalSettingsSectionKey | null; openSupportPortal: (portalId: number) => void; openPortalSettings: (portalId: number, section?: PortalSettingsSectionKey) => void; openConversation: (conversationId: number) => void; openEmployee: (employee: Employee) => void; openAgent: (agentId: number) => void; openKnowledge: (knowledgeId: number) => void; openKnowledgeEditor: (knowledgeId: number | null) => void; onAgentLoaded: (name: string | null) => void; onChannelLoaded: (name: string | null) => void; reload: () => void; setRoute: (route: RouteKey) => void; user: SessionUser; onUserUpdated: (user: SessionUser) => void; onLogout: () => void; onOpenSidebar: () => void; onOrganizationCreated: (identity: AuthenticatedUser, organizationPublicId: string) => void }) {
+const TicketsPage = lazy(() => import("../features/tickets/TicketsPage").then(
+  (module) => ({ default: module.TicketsPage }),
+));
+const TicketDetailPage = lazy(() => import("../features/tickets/TicketDetailPage").then(
+  (module) => ({ default: module.TicketDetailPage }),
+));
+
+export function ShellRouteContent({ settingsSection, openSettings, chatScope, setChatScope, chatCounters, chatScopeSwitcher, route, data, selectedEmployeeId, selectedAgentId, selectedKnowledgeId, selectedConversationId, selectedClientId, openClient, selectedChannelId, openChannel, selectedSupportPortalId, portalSettingsSection, openSupportPortal, openPortalSettings, openConversation, openEmployee, openAgent, openKnowledge, openKnowledgeEditor, selectedTicketId, openTicket, onAgentLoaded, onChannelLoaded, reload, setRoute, user, onUserUpdated, onLogout, onOpenSidebar, onOrganizationCreated }: { settingsSection: SettingsSectionKey | null; openSettings: (section: SettingsSectionKey | null) => void; chatScope: DialogScope; setChatScope: (scope: DialogScope) => void; chatCounters: ConversationCounters | null; chatScopeSwitcher: boolean; route: RouteKey; data: AppData; selectedEmployeeId: number | null; selectedAgentId: number | null; selectedKnowledgeId: number | null; selectedConversationId: number | null; selectedClientId: number | null; openClient: (clientId: number) => void; selectedChannelId: number | null; openChannel: (channelId: number) => void; selectedSupportPortalId: number | null; portalSettingsSection: PortalSettingsSectionKey | null; openSupportPortal: (portalId: number) => void; openPortalSettings: (portalId: number, section?: PortalSettingsSectionKey) => void; openConversation: (conversationId: number) => void; openEmployee: (employee: Employee) => void; openAgent: (agentId: number) => void; openKnowledge: (knowledgeId: number) => void; openKnowledgeEditor: (knowledgeId: number | null) => void; selectedTicketId: number | null; openTicket: (ticketId: number) => void; onAgentLoaded: (name: string | null) => void; onChannelLoaded: (name: string | null) => void; reload: () => void; setRoute: (route: RouteKey) => void; user: SessionUser; onUserUpdated: (user: SessionUser) => void; onLogout: () => void; onOpenSidebar: () => void; onOrganizationCreated: (identity: AuthenticatedUser, organizationPublicId: string) => void }) {
   return (
     <>
       {route === "employees" && <EmployeesPage groups={data.groups} openEmployee={openEmployee} setRoute={setRoute} user={user} />}
@@ -64,6 +71,7 @@ export function ShellRouteContent({ settingsSection, openSettings, chatScope, se
           counters={chatCounters}
           showScopeSwitcher={chatScopeSwitcher}
           setRoute={setRoute}
+          openTicket={openTicket}
           onLogout={onLogout}
           onOpenMenu={onOpenSidebar}
         />
@@ -119,6 +127,24 @@ export function ShellRouteContent({ settingsSection, openSettings, chatScope, se
             openPortals={() => setRoute("supportPortals")}
             openPortalContent={openSupportPortal}
             openPortalSettings={openPortalSettings}
+          />
+        </Suspense>
+      )}
+      {route === "tickets" && (
+        <Suspense fallback={<LoadingState />}>
+          <TicketsPage
+            groups={data.groups}
+            openTicket={openTicket}
+          />
+        </Suspense>
+      )}
+      {route === "ticketDetail" && (
+        <Suspense fallback={<LoadingState />}>
+          <TicketDetailPage
+            ticketId={selectedTicketId}
+            onBack={() => setRoute("tickets")}
+            openConversation={openConversation}
+            openClient={openClient}
           />
         </Suspense>
       )}

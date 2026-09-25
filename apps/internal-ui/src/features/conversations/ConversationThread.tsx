@@ -1,4 +1,4 @@
-import { Fragment, useRef, type ReactNode } from "react";
+import { Fragment, useRef, useState, type ReactNode } from "react";
 
 import { Icon } from "../../shared/icons";
 import { IconButton } from "../../shared/ui-controls";
@@ -9,6 +9,7 @@ import { FileMessage } from "./FileMessage";
 import { VoiceMessage } from "./VoiceMessage";
 import { statusFor } from "./data";
 import { providerMeta } from "../../shared/providers";
+import { CreateTicketModal } from "../tickets/CreateTicketModal";
 import type { ApiConversation, ApiMessage } from "./model";
 import type { ConversationHistory } from "./useConversationHistory";
 import { useHistoryScroll } from "./useHistoryScroll";
@@ -20,6 +21,7 @@ function fmtTime(value: string): string {
 }
 
 export function ConversationThread({ controlMode, dialog, detail, history, isOwner = false, onClaim, onRelease, onClose, onSpam, onReturnQueue, canDelete = false, onDelete, onToggleContext, onMobileBack, onExpandList, viewerId = null }: { controlMode: ControlMode; dialog: ConversationListItem | null; detail: ApiConversation | null; history: ConversationHistory; isOwner?: boolean; onClaim: () => void; onRelease: () => void; onClose: () => void; onSpam: () => Promise<boolean>; onReturnQueue: () => void; canDelete?: boolean; onDelete: () => Promise<boolean>; onToggleContext?: () => void; onMobileBack?: () => void; onExpandList?: () => void; viewerId?: number | null }) {
+  const [createTicketOpen, setCreateTicketOpen] = useState(false);
   const timelineRef = useRef<HTMLDivElement>(null);
   const messages = history.messages;
   // Лента держит низ при новых репликах и догружает предыдущие при подходе к
@@ -69,11 +71,32 @@ export function ConversationThread({ controlMode, dialog, detail, history, isOwn
           )}
           {controlMode === "assigned" && <button className="sales-secondary-action" onClick={onClaim}>{t("conversations.take_conversation")}</button>}
           {controlMode === "human" && <button className="sales-secondary-action" onClick={onRelease}>{t("conversations.hand_back_ai")}</button>}
+          {dialog && (
+            <button
+              className="sales-secondary-action"
+              type="button"
+              onClick={() => setCreateTicketOpen(true)}
+              title={t("tickets.create_ticket_from_chat")}
+            >
+              <Icon name="ticket" size={15} />
+              <span>{t("tickets.create_ticket")}</span>
+            </button>
+          )}
           {/* Кадр S2: на узком экране контекст-панель — выдвижная, кнопка в шапке. */}
           {onToggleContext && <IconButton icon="user" label={t("conversations.conversation_context")} className="ctx-toggle" onClick={onToggleContext} />}
           <ConversationActions open={detail?.lifecycle === "OPEN"} canReturnQueue={controlMode === "human"} onClose={onClose} onSpam={onSpam} onReturnQueue={onReturnQueue} canDelete={canDelete} onDelete={onDelete} />
         </div>
       </div>
+      {createTicketOpen && dialog && (
+        <CreateTicketModal
+          open={createTicketOpen}
+          onClose={() => setCreateTicketOpen(false)}
+          conversationId={dialog.id}
+          requesterContactId={detail?.contact?.id ?? null}
+          initialSubject={dialog.preview ? `${dialog.name}: ${dialog.preview}`.slice(0, 100) : dialog.name}
+          onCreated={() => setCreateTicketOpen(false)}
+        />
+      )}
       <div className="sales-timeline" ref={timelineRef} onScroll={onScroll}>
         <div className="sales-timeline-inner">
           {history.loaded && messages.length === 0 && <div className="sales-wait-note">{t("conversations.no_messages_yet")}</div>}

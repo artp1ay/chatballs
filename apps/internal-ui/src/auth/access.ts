@@ -29,6 +29,9 @@ export function canAccess(user: SessionUser, route: RouteKey): boolean {
   // параметры сотрудника живут на странице «Профиль» (дизайн-базлайн v2).
   if (route === "profile") return true;
   if (route === "organizationCreate") return canCreateOrganization(user);
+  if (route === "tickets" || route === "ticketDetail") {
+    return isManager(user) || hasCapability(user, "tickets.view");
+  }
   if (isManager(user)) return true;
   return EMPLOYEE_ROUTES.has(route);
 }

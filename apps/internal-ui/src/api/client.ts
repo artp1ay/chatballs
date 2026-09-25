@@ -20,6 +20,7 @@ const tenantNamespaces = [
   "integrations",
   "notifications",
   "support",
+  "tickets",
 ];
 
 const publicPaths = [

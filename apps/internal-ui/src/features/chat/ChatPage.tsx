@@ -27,6 +27,7 @@ export function ChatPage({
   counters,
   showScopeSwitcher,
   setRoute,
+  openTicket,
   onLogout,
   onOpenMenu,
 }: {
@@ -37,6 +38,7 @@ export function ChatPage({
   counters: ConversationCounters | null;
   showScopeSwitcher: boolean;
   setRoute: (route: RouteKey) => void;
+  openTicket?: (ticketId: number) => void;
   onLogout: () => void;
   onOpenMenu: () => void;
 }) {
@@ -74,6 +76,7 @@ export function ChatPage({
           closeContext={closeContext}
           viewerId={user.id}
           assignmentTimeoutMinutes={assignmentTimeoutMinutes}
+          openTicket={openTicket}
         />
       )}
     />
@@ -91,6 +94,7 @@ function ChatContextPanel({
   closeContext,
   viewerId,
   assignmentTimeoutMinutes,
+  openTicket,
 }: {
   rightTab: ChatRightTab;
   setRightTab: (tab: ChatRightTab) => void;
@@ -102,6 +106,7 @@ function ChatContextPanel({
   closeContext: () => void;
   viewerId: number;
   assignmentTimeoutMinutes?: number;
+  openTicket?: (ticketId: number) => void;
 }) {
   return (
     <section className="sales-context">
@@ -112,7 +117,7 @@ function ChatContextPanel({
       </div>
       <div className="sales-context-body">
         {rightTab === "client" && (
-          <ClientContext dialog={dialog} detail={detail} groups={groups} applyConversation={applyConversation} startCall={startCall} viewerId={viewerId} assignmentTimeoutMinutes={assignmentTimeoutMinutes} />
+          <ClientContext dialog={dialog} detail={detail} groups={groups} applyConversation={applyConversation} startCall={startCall} viewerId={viewerId} assignmentTimeoutMinutes={assignmentTimeoutMinutes} openTicket={openTicket} />
         )}
         {rightTab === "history" && <HistoryContext detail={detail} />}
       </div>

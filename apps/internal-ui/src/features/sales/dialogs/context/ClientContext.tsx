@@ -9,6 +9,7 @@ import { ContactEditForm } from "../../../conversations/ContactEditForm";
 import { DialogControls } from "../../../conversations/DialogControls";
 import { requestContact, updateContactCard, type ApiConversation } from "../../../conversations/model";
 import type { ConversationListItem } from "../../../conversations/types";
+import { RelatedTicketsSection } from "../../../tickets/RelatedTicketsSection";
 import type { EmployeeGroupRef } from "../../../../types";
 import { t } from "../../../../i18n";
 
@@ -24,6 +25,7 @@ export function ClientContext({
   startCall,
   viewerId = null,
   assignmentTimeoutMinutes,
+  openTicket,
 }: {
   dialog: ConversationListItem | null;
   detail: ApiConversation | null;
@@ -32,6 +34,7 @@ export function ClientContext({
   startCall?: ((kind: "AUDIO" | "VIDEO") => void) | null;
   viewerId?: number | null;
   assignmentTimeoutMinutes?: number;
+  openTicket?: (ticketId: number) => void;
 }) {
   const [requesting, setRequesting] = useState(false);
   const [justRequested, setJustRequested] = useState(false);
@@ -131,6 +134,13 @@ export function ClientContext({
             </button>
             {requestError && <p className="ctx-error">{t("sales.could_not_send_request_try")}</p>}
           </>
+        )}
+        {contact && (
+          <RelatedTicketsSection
+            contactId={contact.id}
+            groups={groups}
+            openTicket={openTicket}
+          />
         )}
       </div>
 

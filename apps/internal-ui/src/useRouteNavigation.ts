@@ -22,6 +22,7 @@ export function useRouteNavigation(
   const [selectedSupportPortalId, setSelectedSupportPortalId] = useState(initialRoute.supportPortalId);
   const [selectedPortalSection, setSelectedPortalSection] = useState(initialRoute.portalSettingsSection);
   const [selectedSettingsSection, setSelectedSettingsSection] = useState(initialRoute.settingsSection);
+  const [selectedTicketId, setSelectedTicketId] = useState(initialRoute.ticketId);
 
   const applyRouteState = useCallback((next: RouteState) => {
     setRoute(next.route);
@@ -34,6 +35,7 @@ export function useRouteNavigation(
     setSelectedSupportPortalId(next.supportPortalId);
     setSelectedPortalSection(next.portalSettingsSection);
     setSelectedSettingsSection(next.settingsSection);
+    setSelectedTicketId(next.ticketId);
   }, []);
 
   // У «Настроек» второй аргумент — ключ раздела субменю, а не id сущности.
@@ -59,6 +61,7 @@ export function useRouteNavigation(
         ? portalSettingsSectionKey(String(entityId).split("/")[1] ?? "") ?? DEFAULT_PORTAL_SETTINGS_SECTION
         : null,
       settingsSection: nextRoute === "settings" ? settingsSectionKey(String(entityId)) : null,
+      ticketId: nextRoute === "ticketDetail" && typeof entityId === "number" ? entityId : null,
     };
     applyRouteState(nextState);
     setSelectedConversationId(
@@ -81,6 +84,7 @@ export function useRouteNavigation(
     selectedSupportPortalId,
     selectedPortalSection,
     selectedSettingsSection,
+    selectedTicketId,
     applyRouteState,
     navigate,
   };

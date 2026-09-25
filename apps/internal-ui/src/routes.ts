@@ -23,4 +23,6 @@ export const routes: Record<RouteKey, string> = {
   knowledgeImport: t("shared.knowledge_import"),
   aiUsage: t("shared.ai_usage"),
   organizationCreate: t("organizations.create_title"),
+  tickets: t("common.tickets"),
+  ticketDetail: t("shared.ticket_detail"),
 };

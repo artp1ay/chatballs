@@ -12,6 +12,7 @@ const empty = {
   supportPortalId: null,
   portalSettingsSection: null,
   settingsSection: null,
+  ticketId: null,
 };
 
 describe("organization create route", () => {
@@ -215,5 +216,18 @@ describe("settings routes", () => {
     expect(pathFromRoute("settings")).toBe("/settings");
     expect(pathFromRoute("settings", "integrations")).toBe("/settings/integrations");
     expect(pathFromRoute("settings", "nope")).toBe("/settings");
+  });
+});
+
+describe("tickets routes", () => {
+  it("parses tickets list and detail URLs", () => {
+    expect(routeFromPath("/tickets")).toEqual({ route: "tickets", ...empty });
+    expect(routeFromPath("/tickets/42")).toEqual({ route: "ticketDetail", ...empty, ticketId: 42 });
+    expect(routeFromPath("/tickets/abc")).toEqual({ route: "tickets", ...empty });
+  });
+
+  it("creates tickets URLs", () => {
+    expect(pathFromRoute("tickets")).toBe("/tickets");
+    expect(pathFromRoute("ticketDetail", 42)).toBe("/tickets/42");
   });
 });
