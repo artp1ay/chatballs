@@ -3,9 +3,6 @@
 from __future__ import annotations
 
 import logging
-from typing import Any
-
-from django.utils import timezone
 
 from chatballs.conversations import transports
 from chatballs.conversations.models import ConnectionIdentity, Conversation
@@ -18,7 +15,6 @@ from chatballs.tickets.models.activities import (
 from chatballs.tickets.models.delivery import (
     TicketDelivery,
     TicketDeliveryChannel,
-    TicketDeliveryStatus,
 )
 
 logger = logging.getLogger(__name__)

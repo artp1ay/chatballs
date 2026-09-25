@@ -17,15 +17,12 @@ from chatballs.tickets.event_handlers import (
 )
 from chatballs.tickets.models import (
     CustomerNoticePolicy,
-    Ticket,
     TicketDelivery,
     TicketDeliveryStatus,
     TicketEventType,
-    TicketPriority,
     TicketStatus,
 )
 from chatballs.tickets.services import (
-    add_ticket_comment,
     create_ticket,
 )
 from chatballs.tickets.state_machine import execute_transition

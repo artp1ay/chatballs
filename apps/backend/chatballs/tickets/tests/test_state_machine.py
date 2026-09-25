@@ -4,7 +4,7 @@ from django.test import TestCase
 
 from chatballs.identity.bootstrap import bootstrap_owner
 from chatballs.identity.models import Organization, OrganizationMembership
-from chatballs.tickets.models import Ticket, TicketEvent, TicketEventType, TicketStatus
+from chatballs.tickets.models import TicketEvent, TicketEventType, TicketStatus
 from chatballs.tickets.services import create_ticket
 from chatballs.tickets.state_machine import (
     TransitionError,

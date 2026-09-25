@@ -9,18 +9,13 @@ from chatballs.conversations.models import Contact, Conversation
 from chatballs.events.models import OutboxEvent
 from chatballs.identity.bootstrap import bootstrap_owner
 from chatballs.identity.models import Organization
-from chatballs.notifications.models import Notification, NotificationType
 from chatballs.tickets.event_handlers import (
     handle_delivery_dispatched,
-    handle_staff_notification,
 )
 from chatballs.tickets.models import (
     CustomerNoticePolicy,
-    Ticket,
     TicketDelivery,
-    TicketDeliveryChannel,
     TicketDeliveryStatus,
-    TicketEventType,
     TicketPriority,
     TicketStatus,
     compute_destination_hash,

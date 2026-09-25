@@ -32,7 +32,7 @@ class CustomerNoticePolicy(models.TextChoices):
 
 def compute_destination_hash(channel: str, destination: str) -> str:
     """Дедупликационный хэш канала и точки назначения."""
-    return hashlib.sha256(f"{channel}:{destination}".encode("utf-8")).hexdigest()
+    return hashlib.sha256(f"{channel}:{destination}".encode()).hexdigest()
 
 
 class TicketDelivery(TenantRelationModel):

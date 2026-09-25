@@ -1,7 +1,7 @@
 """Тесты изоляции тенантов и cross-tenant DB guards для Helpdesk."""
 
 from django.core.exceptions import ValidationError
-from django.db import DatabaseError, connection, transaction
+from django.db import DatabaseError, connection
 from django.test import TestCase
 
 from chatballs.channels.models import Channel

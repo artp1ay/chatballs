@@ -1,6 +1,5 @@
 """Тесты моделей ядра Helpdesk, генерации номеров и каскадного удаления."""
 
-from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.test import TestCase
 
